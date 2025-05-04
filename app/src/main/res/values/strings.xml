@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NBARandomizer</string>
+    <string name="title_randomize_player">Игрок</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_roster">Список игроков</string>
+    <string name="positionsTitle">Позиции</string>
+    <string name="resetBtnText">Сбросить</string>
+</resources>
