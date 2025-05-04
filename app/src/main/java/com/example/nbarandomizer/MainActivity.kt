@@ -8,14 +8,12 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
-import androidx.navigation.ui.setupWithNavController
+import com.example.nbarandomizer.adapters.ViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
@@ -64,10 +62,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val navView: BottomNavigationView = binding.navView
-
-        val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        navView.setupWithNavController(navController)
+        initializeViewPager()
 
         initializeSpinner(binding.epochSpinner, Epoch.entries.map { it.toString() })
         initializeSpinner(binding.versionSpinner, listOf("2K25", "2K24", "2K23", "2K22", "2K21"))
@@ -75,6 +70,12 @@ class MainActivity : AppCompatActivity() {
         getRoster()
 
         binding.refreshBtn.setOnClickListener { downloadRoster() }
+    }
+
+    private fun initializeViewPager() {
+        val viewPager = binding.viewPager
+        val adapter = ViewPagerAdapter(this)
+        viewPager.adapter = adapter
     }
 
     private fun stopDownloadingJob() {

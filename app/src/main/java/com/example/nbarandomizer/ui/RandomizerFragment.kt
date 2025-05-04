@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.nbarandomizer.MainActivity
 import com.example.nbarandomizer.R
-import com.example.nbarandomizer.databinding.FragmentRandomizePlayerBinding
+import com.example.nbarandomizer.databinding.FragmentRandomizerBinding
 import com.example.nbarandomizer.extensions.generateTeams
 import com.example.nbarandomizer.extensions.getNextPlayer
 import com.example.nbarandomizer.extensions.randomize
@@ -19,8 +21,8 @@ import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.Position
 import com.google.android.material.chip.Chip
 
-class RandomizePlayerFragment : Fragment() {
-    private var _binding: FragmentRandomizePlayerBinding? = null
+class RandomizerFragment : Fragment() {
+    private var _binding: FragmentRandomizerBinding? = null
 
     private val binding get() = _binding!!
 
@@ -34,18 +36,27 @@ class RandomizePlayerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentRandomizePlayerBinding.inflate(inflater, container, false)
+        _binding = FragmentRandomizerBinding.inflate(inflater, container, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         initializePositionsChips()
         setSeekBarListeners()
-
-        binding.randomizeButton.setOnClickListener { randomize() }
-        binding.resetBtn.setOnClickListener { reset() }
+        setOnClickListeners()
 
         MainActivity.selectedRoster.observe(viewLifecycleOwner) { reset() }
         shuffledPlayers.observe(viewLifecycleOwner) { binding.remainingPlayersTextView.text = "Осталось игроков ${it.size}" }
 
         return binding.root
+    }
+
+    private fun setOnClickListeners() {
+        binding.randomizeButton.setOnClickListener { randomize() }
+        binding.resetBtn.setOnClickListener { reset() }
     }
 
     private fun initializePositionsChips() {
@@ -104,6 +115,7 @@ class RandomizePlayerFragment : Fragment() {
         }
         catch (ex: Exception) {
             toastMessage(ex.message!!)
+            return
         }
 
         shuffledPlayers.value = players
