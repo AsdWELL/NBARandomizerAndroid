@@ -5,4 +5,5 @@
     <string name="title_roster">Список игроков</string>
     <string name="positionsTitle">Позиции</string>
     <string name="resetBtnText">Сбросить</string>
+    <string name="twoTeamsText">Две команды</string>
 </resources>

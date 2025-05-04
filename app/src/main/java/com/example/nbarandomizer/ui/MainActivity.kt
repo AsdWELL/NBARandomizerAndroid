@@ -1,4 +1,4 @@
-package com.example.nbarandomizer
+package com.example.nbarandomizer.ui
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import com.example.nbarandomizer.App
 import com.example.nbarandomizer.adapters.ViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
 import com.example.nbarandomizer.models.Epoch

@@ -29,41 +29,40 @@ fun MutableList<Player>.getNextPlayerByPosition(position: Position): Player {
     return player
 }
 
-private fun MutableList<Player>.checkPlayersCount(count: Int) {
-    if (count < 2)
-        throw InvalidPlayersCountException()
-
-    if (count > size)
-        throw NotEnoughPlayersException()
-
-    if (count % 2 == 1)
-        throw OddPlayersCountException()
-}
-
 /**
  * @param count Количество игроков в команде
  * @throws InvalidPlayersCountException
  * @throws NotEnoughPlayersException
  * @throws OddPlayersCountException
  */
-fun MutableList<Player>.generateTeams(count: Int): List<Player> {
-    val newCount = count * 2
+fun MutableList<Player>.generateTeams(playersCount: Int, teamsCount: Int = 1): List<Player> {
+    val newCount = if (teamsCount == 2)
+                        playersCount * 2
+                   else
+                       playersCount
 
-    checkPlayersCount(newCount)
+    if (newCount > size)
+        throw NotEnoughPlayersException()
 
     return List(newCount) { getNextPlayer() }
 }
 
-fun MutableList<Player>.generateCompleteTeams(vararg positions: Position = Position.entries.toTypedArray()): MutableList<Player> {
+fun MutableList<Player>.generateCompleteTeams(positions: List<Position>, teamsCount: Int = 1): MutableList<Player> {
     val distinctPositions = positions.distinct()
 
-    checkPlayersCount(distinctPositions.size * 2)
+    var playersCount = positions.size
+    if (teamsCount == 2)
+        playersCount *= 2
+
+    if (playersCount > size)
+        throw NotEnoughPlayersException()
 
     val players = mutableListOf<Player>()
 
-    repeat(2) {
-        distinctPositions.forEach { players.add(getNextPlayerByPosition(it)) }
-    }
+    for (position in distinctPositions)
+        repeat(teamsCount) {
+            players.add(getNextPlayerByPosition(position))
+        }
 
     return players
 }

@@ -11,11 +11,12 @@ import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
-import com.example.nbarandomizer.MainActivity
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.databinding.FragmentRandomizerBinding
+import com.example.nbarandomizer.extensions.generateCompleteTeams
 import com.example.nbarandomizer.extensions.generateTeams
 import com.example.nbarandomizer.extensions.getNextPlayer
+import com.example.nbarandomizer.extensions.getNextPlayerByPosition
 import com.example.nbarandomizer.extensions.randomize
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.Position
@@ -107,16 +108,36 @@ class RandomizerFragment : Fragment() {
         if (players.isEmpty())
             players = MainActivity.selectedRoster.value!!.randomize()
 
+        val randomizedPlayers = mutableListOf<Player>()
+        val teamsCount = when (binding.twoTeamsSwitch.isChecked) {
+            true -> 2
+            false -> 1
+        }
+
         try {
-            if (playersCount == 1)
-                players.getNextPlayer()
-            else
-                players.generateTeams(playersCount)
+            if (playersCount == 1) {
+                repeat(teamsCount) {
+                    if (selectedPositions.size > 0)
+                        randomizedPlayers.add(players.getNextPlayerByPosition(selectedPositions[0]))
+                    else
+                        randomizedPlayers.add(players.getNextPlayer())
+                }
+            }
+            else {
+                if (selectedPositions.size > 0)
+                    randomizedPlayers.addAll(players.generateCompleteTeams(selectedPositions, teamsCount))
+                else
+                    randomizedPlayers.addAll(players.generateTeams(playersCount, teamsCount))
+            }
         }
         catch (ex: Exception) {
             toastMessage(ex.message!!)
             return
         }
+
+        val teamFragment = TeamFragment(teamsCount)
+        teamFragment.setPlayers(randomizedPlayers)
+        teamFragment.show(requireActivity().supportFragmentManager, "")
 
         shuffledPlayers.value = players
     }

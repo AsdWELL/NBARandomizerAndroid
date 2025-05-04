@@ -5,12 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.nbarandomizer.App
-import com.example.nbarandomizer.MainActivity
 import com.example.nbarandomizer.adapters.PlayerAdapter
 import com.example.nbarandomizer.callbacks.PlayersDiffCallback
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
