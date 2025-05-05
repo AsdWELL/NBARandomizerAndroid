@@ -10,14 +10,18 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nbarandomizer.R
+import com.example.nbarandomizer.adapters.IPlayerCardListener
 import com.example.nbarandomizer.adapters.TeamAdapter
 import com.example.nbarandomizer.callbacks.PlayersDiffCallback
 import com.example.nbarandomizer.models.Player
 
-class TeamFragment(private val teamsCount: Int) : DialogFragment() {
-    private val adapter = TeamAdapter()
+class TeamFragment(private val players: MutableList<Player>,
+                   private val teamsCount: Int,
+                   private val getRandomPlayer: (position: Int) -> Player)
+    : DialogFragment() {
+    private lateinit var adapter: TeamAdapter
 
-    fun setPlayers(players: MutableList<Player>) {
+    private fun setPlayersToAdapter() {
         val oldPlayers = adapter.playersCollection
 
         val diffResult = DiffUtil.calculateDiff(PlayersDiffCallback(oldPlayers, players))
@@ -42,8 +46,17 @@ class TeamFragment(private val teamsCount: Int) : DialogFragment() {
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
+        adapter = TeamAdapter(object : IPlayerCardListener {
+            override fun onClick(position: Int) {
+                adapter.playersCollection[position] = getRandomPlayer(position)
+                adapter.notifyItemChanged(position)
+            }
+        })
+
         recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
         recyclerView.adapter = adapter
+
+        setPlayersToAdapter()
 
         return view
     }

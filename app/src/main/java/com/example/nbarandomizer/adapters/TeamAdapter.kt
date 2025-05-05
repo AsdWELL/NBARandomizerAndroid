@@ -16,10 +16,15 @@ import com.example.nbarandomizer.R
 import com.example.nbarandomizer.databinding.PlayerCardBinding
 import com.example.nbarandomizer.models.Player
 
+interface IPlayerCardListener {
+    fun onClick(position: Int)
+}
+
 class TeamViewHolder(val binding: PlayerCardBinding) : RecyclerView.ViewHolder(binding.root)
 
-class TeamAdapter : RecyclerView.Adapter<TeamViewHolder>() {
-    var playersCollection: List<Player> = emptyList()
+class TeamAdapter(private val playerCardListener: IPlayerCardListener)
+    : RecyclerView.Adapter<TeamViewHolder>() {
+    var playersCollection: MutableList<Player> = mutableListOf()
 
     private lateinit var context: Context
 
@@ -100,5 +105,7 @@ class TeamAdapter : RecyclerView.Adapter<TeamViewHolder>() {
         Glide.with(holder.itemView.context)
             .load(player.photoUrl)
             .into(binding.photo)
+
+        binding.refreshBtn.setOnClickListener { playerCardListener.onClick(position) }
     }
 }

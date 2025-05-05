@@ -13,7 +13,14 @@ fun MutableList<Player>.randomize(): MutableList<Player> = shuffled().toMutableL
 /**
  * Возвращает следующего игрока из коллекции
  */
-fun MutableList<Player>.getNextPlayer(): Player = this.removeAt(0)
+fun MutableList<Player>.getNextPlayer(): Player {
+    return try {
+        this.removeAt(0)
+    }
+    catch (ex: Exception) {
+        throw EmptyPlayersListException()
+    }
+}
 
 /**
  *  Возвращает следующего игрока из коллекции по позиции
@@ -36,10 +43,7 @@ fun MutableList<Player>.getNextPlayerByPosition(position: Position): Player {
  * @throws OddPlayersCountException
  */
 fun MutableList<Player>.generateTeams(playersCount: Int, teamsCount: Int = 1): List<Player> {
-    val newCount = if (teamsCount == 2)
-                        playersCount * 2
-                   else
-                       playersCount
+    val newCount = playersCount * teamsCount
 
     if (newCount > size)
         throw NotEnoughPlayersException()
@@ -47,22 +51,26 @@ fun MutableList<Player>.generateTeams(playersCount: Int, teamsCount: Int = 1): L
     return List(newCount) { getNextPlayer() }
 }
 
-fun MutableList<Player>.generateCompleteTeams(positions: List<Position>, teamsCount: Int = 1): MutableList<Player> {
+fun MutableList<Player>.generateCompleteTeams(positions: List<Position>, teamsCount: Int): MutableList<Player> {
     val distinctPositions = positions.distinct()
 
-    var playersCount = positions.size
-    if (teamsCount == 2)
-        playersCount *= 2
+    val playersCount = distinctPositions.size * teamsCount
 
     if (playersCount > size)
         throw NotEnoughPlayersException()
 
     val players = mutableListOf<Player>()
 
-    for (position in distinctPositions)
-        repeat(teamsCount) {
-            players.add(getNextPlayerByPosition(position))
-        }
+    try {
+        for (position in distinctPositions)
+            repeat(teamsCount) {
+                players.add(getNextPlayerByPosition(position))
+            }
+    }
+    catch (ex: Exception) {
+        addAll(players)
+        throw ex
+    }
 
     return players
 }

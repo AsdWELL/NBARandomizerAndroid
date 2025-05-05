@@ -135,8 +135,25 @@ class RandomizerFragment : Fragment() {
             return
         }
 
-        val teamFragment = TeamFragment(teamsCount)
-        teamFragment.setPlayers(randomizedPlayers)
+        val teamFragment = TeamFragment(randomizedPlayers, teamsCount)  { position ->
+            val buffer = shuffledPlayers.value!!
+
+            val player = try {
+                when(selectedPositions.size) {
+                    0 -> buffer.getNextPlayer()
+                    else -> buffer.getNextPlayerByPosition(selectedPositions[position / teamsCount])
+                }
+            }
+            catch (ex: Exception) {
+                toastMessage(ex.message!!)
+                return@TeamFragment randomizedPlayers[position]
+            }
+
+            shuffledPlayers.value = buffer
+
+            player
+        }
+
         teamFragment.show(requireActivity().supportFragmentManager, "")
 
         shuffledPlayers.value = players

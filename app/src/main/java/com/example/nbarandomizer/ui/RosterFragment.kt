@@ -20,9 +20,6 @@ class RosterFragment : Fragment() {
 
     private lateinit var adapter: PlayerAdapter
 
-    private val playersService: PlayersService
-        get() = (context as App).playersService
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

@@ -77,6 +77,8 @@ class MainActivity : AppCompatActivity() {
         val viewPager = binding.viewPager
         val adapter = ViewPagerAdapter(this)
         viewPager.adapter = adapter
+
+        binding.indicator.setViewPager(binding.viewPager)
     }
 
     private fun stopDownloadingJob() {
