@@ -6,30 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.IPlayerCardListener
 import com.example.nbarandomizer.adapters.TeamAdapter
-import com.example.nbarandomizer.callbacks.PlayersDiffCallback
+import com.example.nbarandomizer.databinding.TeamLayoutBinding
 import com.example.nbarandomizer.models.Player
 
 class TeamFragment(private val players: MutableList<Player>,
                    private val teamsCount: Int,
                    private val getRandomPlayer: (position: Int) -> Player)
     : DialogFragment() {
+    private var _binding: TeamLayoutBinding? = null
+
+    private val binding get() = _binding!!
+
     private lateinit var adapter: TeamAdapter
-
-    private fun setPlayersToAdapter() {
-        val oldPlayers = adapter.playersCollection
-
-        val diffResult = DiffUtil.calculateDiff(PlayersDiffCallback(oldPlayers, players))
-
-        adapter.playersCollection = players
-
-        diffResult.dispatchUpdatesTo(adapter)
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
@@ -42,23 +34,24 @@ class TeamFragment(private val players: MutableList<Player>,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.team_layout, container, false)
-
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        _binding = TeamLayoutBinding.inflate(inflater, container, false)
 
         adapter = TeamAdapter(object : IPlayerCardListener {
             override fun onClick(position: Int) {
-                adapter.playersCollection[position] = getRandomPlayer(position)
-                adapter.notifyItemChanged(position)
+                val newData = adapter.currentList.toMutableList().apply {
+                    this[position] = getRandomPlayer(position)
+                }
+
+                adapter.submitList(newData)
             }
         })
 
-        recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
-        recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
+        binding.recyclerView.adapter = adapter
 
-        setPlayersToAdapter()
+        adapter.submitList(players)
 
-        return view
+        return binding.root
     }
 
     override fun onStart() {
@@ -68,5 +61,11 @@ class TeamFragment(private val players: MutableList<Player>,
 
     override fun getTheme(): Int {
         return R.style.CenteredDialogTheme
+    }
+
+    override fun onDestroy() {
+        _binding = null
+
+        super.onDestroy()
     }
 }

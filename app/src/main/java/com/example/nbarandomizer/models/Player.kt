@@ -27,7 +27,10 @@ data class Player(
     val position: String,
     val epoch: Epoch,
     val url: String,
-    val photoUrl: String
+    val photoUrl: String,
+    val overallColor: Int,
+    val threePointColor: Int,
+    val dunkColor: Int
 ) {
     override fun toString(): String {
         return "$name $position ovr: $overall, 3pt: $threePointRating, dunk: $dunkRating, height: ${height}cm - $epoch $team"

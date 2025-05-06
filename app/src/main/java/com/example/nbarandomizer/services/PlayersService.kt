@@ -1,6 +1,8 @@
 package com.example.nbarandomizer.services
 
 import android.content.Context
+import androidx.core.content.ContextCompat
+import com.example.nbarandomizer.R
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
 import com.fleeksoft.ksoup.Ksoup
@@ -55,6 +57,31 @@ class PlayersService(private val context: Context) : Closeable {
         return (inches * 2.54).roundToInt()
     }
 
+    private fun getColor(colorId: Int) = ContextCompat.getColor(context, colorId)
+
+    private fun getOvrColor(ovr: Int): Int {
+        return when(ovr) {
+            in 0..83 -> getColor(R.color.ovr8083)
+            in 84..86 -> getColor(R.color.ovr8486)
+            in 87..89 -> getColor(R.color.ovr8789)
+            in 90..91 -> getColor(R.color.ovr9091)
+            in 92..94 -> getColor(R.color.ovr9294)
+            in 95..96 -> getColor(R.color.ovr9596)
+            in 97..98 -> getColor(R.color.ovr9798)
+            else -> getColor(R.color.ovr099)
+        }
+    }
+
+    private fun getStatColor(value: Int): Int {
+        return when(value) {
+            in 0..59 -> getColor(R.color.stat059)
+            in 60..69 -> getColor(R.color.stat6069)
+            in 70..79 -> getColor(R.color.stat7079)
+            in 80..89 -> getColor(R.color.stat8089)
+            else -> getColor(R.color.stat9099)
+        }
+    }
+
     private suspend fun parsePlayers(content: String, epoch: Epoch) = coroutineScope {
         async {
             val document = Ksoup.parse(content)
@@ -67,19 +94,25 @@ class PlayersService(private val context: Context) : Closeable {
 
             MutableList(names.size) {
                 val playerInfo = info[it].split("|")
+                val overall = ratings[it * 3]
+                val threePtRating = ratings[it * 3 + 1]
+                val dunkRating = ratings[it * 3 + 2]
 
                 Player(
                     id = it,
                     name = names[it],
                     team = playerInfo[2].trim(),
-                    overall = ratings[it * 3],
-                    threePointRating = ratings[it * 3 + 1],
-                    dunkRating = ratings[it * 3 + 2],
+                    overall = overall,
+                    threePointRating = threePtRating,
+                    dunkRating = dunkRating,
                     height = inchesToCm(playerInfo[1]),
                     position = playerInfo[0].replace(" /", ",").trim(),
                     epoch = epoch,
                     url = urls[it],
-                    photoUrl = photosUrl[it]
+                    photoUrl = photosUrl[it],
+                    overallColor = getOvrColor(overall),
+                    threePointColor = getStatColor(threePtRating),
+                    dunkColor = getStatColor(dunkRating)
                 )
             }
         }

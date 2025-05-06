@@ -5,13 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.nbarandomizer.App
 import com.example.nbarandomizer.adapters.PlayerAdapter
-import com.example.nbarandomizer.callbacks.PlayersDiffCallback
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
-import com.example.nbarandomizer.services.PlayersService
 
 class RosterFragment : Fragment() {
     private var _binding: FragmentRosterBinding? = null
@@ -38,15 +34,7 @@ class RosterFragment : Fragment() {
     }
 
     private fun bindRoster() {
-        MainActivity.selectedRoster.observe(viewLifecycleOwner) { newRoster ->
-            val oldRoster = adapter.playersCollection
-
-            val diffResult = DiffUtil.calculateDiff(PlayersDiffCallback(oldRoster, newRoster))
-
-            adapter.playersCollection = newRoster
-
-            diffResult.dispatchUpdatesTo(adapter)
-        }
+        MainActivity.selectedRoster.observe(viewLifecycleOwner) { adapter.submitList(it) }
     }
 
     override fun onDestroy() {
