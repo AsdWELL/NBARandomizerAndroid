@@ -9,6 +9,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.IPlayerCardListener
+import com.example.nbarandomizer.animators.PlayerCardAnimator
 import com.example.nbarandomizer.adapters.TeamAdapter
 import com.example.nbarandomizer.databinding.TeamLayoutBinding
 import com.example.nbarandomizer.models.Player
@@ -46,6 +47,7 @@ class TeamFragment(private val players: MutableList<Player>,
             }
         })
 
+        binding.recyclerView.itemAnimator = PlayerCardAnimator()
         binding.recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
         binding.recyclerView.adapter = adapter
 

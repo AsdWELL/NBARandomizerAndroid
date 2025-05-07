@@ -42,6 +42,5 @@
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@anim/card_in</item>
         <item name="android:windowExitAnimation">@anim/card_out</item>
-        <item name="duration">500</item>
     </style>
 </resources>
