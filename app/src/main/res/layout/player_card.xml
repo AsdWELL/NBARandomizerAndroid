@@ -18,9 +18,10 @@
 
     <ImageView
         android:id="@+id/refreshBtn"
+        app:tint="?attr/colorOnSurface"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        android:tooltipText="Обновить состав"
+        android:tooltipText="Заменить игрока"
         app:layout_constraintEnd_toEndOf="@+id/name"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_popup_sync" />

@@ -30,14 +30,13 @@ class MainActivity : AppCompatActivity() {
     private val playersService: PlayersService
         get() = (applicationContext as App).playersService
 
-    private var downloadingJob: Job? = null
-
     private val downloadingAnimator by lazy {
         createDownloadingAnimation()
     }
 
     companion object {
         val selectedRoster: MutableLiveData<MutableList<Player>> = MutableLiveData(mutableListOf())
+        var downloadingJob: Job? = null
     }
 
     private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>) {
@@ -65,12 +64,16 @@ class MainActivity : AppCompatActivity() {
 
         initializeViewPager()
 
+        binding.refreshBtn.setOnClickListener { downloadRoster() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         initializeSpinner(binding.epochSpinner, Epoch.entries.map { it.toString() })
         initializeSpinner(binding.versionSpinner, listOf("2K25", "2K24", "2K23", "2K22", "2K21"))
 
         getRoster()
-
-        binding.refreshBtn.setOnClickListener { downloadRoster() }
     }
 
     private fun initializeViewPager() {

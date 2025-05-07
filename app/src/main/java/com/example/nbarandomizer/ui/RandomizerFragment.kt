@@ -98,6 +98,11 @@ class RandomizerFragment : Fragment() {
     }
 
     private fun randomize() {
+        if (MainActivity.downloadingJob?.isActive == true) {
+            toastMessage("Говно скачивается")
+            return
+        }
+
         if (selectedPositions.isNotEmpty() && selectedPositions.size != playersCount) {
             toastMessage("Хуйня")
             return
