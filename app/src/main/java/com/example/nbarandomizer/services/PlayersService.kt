@@ -5,6 +5,7 @@ import androidx.core.content.ContextCompat
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
+import com.example.nbarandomizer.models.Rating
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Element
 import io.ktor.client.HttpClient
@@ -99,20 +100,16 @@ class PlayersService(private val context: Context) : Closeable {
                 val dunkRating = ratings[it * 3 + 2]
 
                 Player(
-                    id = it,
                     name = names[it],
                     team = playerInfo[2].trim(),
-                    overall = overall,
-                    threePointRating = threePtRating,
-                    dunkRating = dunkRating,
+                    overall = Rating(overall, getOvrColor(overall)),
+                    threePointRating = Rating(threePtRating, getStatColor(threePtRating)),
+                    dunkRating = Rating(dunkRating, getStatColor(dunkRating)),
                     height = inchesToCm(playerInfo[1]),
                     position = playerInfo[0].replace(" /", ",").trim(),
                     epoch = epoch,
                     url = urls[it],
                     photoUrl = photosUrl[it],
-                    overallColor = getOvrColor(overall),
-                    threePointColor = getStatColor(threePtRating),
-                    dunkColor = getStatColor(dunkRating)
                 )
             }
         }

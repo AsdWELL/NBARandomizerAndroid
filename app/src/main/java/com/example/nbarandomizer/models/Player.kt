@@ -17,22 +17,14 @@ enum class Epoch {
 
 @Serializable
 data class Player(
-    val id: Int,
     var name: String,
     val team: String,
-    val overall: Int,
-    val threePointRating : Int,
-    val dunkRating: Int,
+    val overall: Rating,
+    val threePointRating : Rating,
+    val dunkRating: Rating,
     val height: Int,
     val position: String,
     val epoch: Epoch,
     val url: String,
-    val photoUrl: String,
-    val overallColor: Int,
-    val threePointColor: Int,
-    val dunkColor: Int
-) {
-    override fun toString(): String {
-        return "$name $position ovr: $overall, 3pt: $threePointRating, dunk: $dunkRating, height: ${height}cm - $epoch $team"
-    }
-}
+    val photoUrl: String
+)

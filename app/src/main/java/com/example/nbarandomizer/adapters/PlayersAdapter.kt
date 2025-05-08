@@ -34,13 +34,13 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
         with(binding) {
             name.text = player.name
             details.text = "${player.position} | ${player.height}cm | ${player.team}"
-            overallTextView.text = player.overall.toString()
-            threePtTextView.text = player.threePointRating.toString()
-            dunkTextView.text = player.dunkRating.toString()
+            overallTextView.text = player.overall.value.toString()
+            threePtTextView.text = player.threePointRating.value.toString()
+            dunkTextView.text = player.dunkRating.value.toString()
 
-            setCardColor(overallCardView, player.overallColor)
-            setCardColor(threePtCardView, player.threePointColor)
-            setCardColor(dunkCardView, player.dunkColor)
+            setCardColor(overallCardView, player.overall.color)
+            setCardColor(threePtCardView, player.threePointRating.color)
+            setCardColor(dunkCardView, player.dunkRating.color)
 
             Glide.with(binding.root)
                 .load(player.photoUrl)
