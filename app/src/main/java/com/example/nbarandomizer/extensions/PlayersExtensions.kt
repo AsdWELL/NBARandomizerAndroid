@@ -74,7 +74,3 @@ fun MutableList<Player>.generateCompleteTeams(positions: List<Position>, teamsCo
 
     return players
 }
-
-fun MutableList<Player>.teamOverall(): Double {
-    return ((this.sumOf { it.overall.value }.toDouble() / this.size) * 100).roundToInt() / 100.0
-}

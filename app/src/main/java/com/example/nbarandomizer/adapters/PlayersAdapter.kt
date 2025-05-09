@@ -11,6 +11,10 @@ import com.example.nbarandomizer.databinding.ItemPlayerBinding
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
 
+interface IPlayerDetailsListener {
+    fun onClick(player: Player)
+}
+
 class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.ViewHolder(binding.root) {
     init {
         setupCard(binding.overallCardView)
@@ -30,7 +34,7 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
         card.outlineSpotShadowColor = color
     }
 
-    fun bind(player: Player) {
+    fun bind(player: Player, playerDetailsListener: IPlayerDetailsListener) {
         with(binding) {
             name.text = player.name
             details.text = "${player.position} | ${player.height}cm | ${player.team}"
@@ -46,10 +50,16 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
                 .load(player.photoUrl)
                 .into(photo)
         }
+
+        itemView.setOnLongClickListener {
+            playerDetailsListener.onClick(player)
+            true
+        }
     }
 }
 
-class PlayerAdapter : ListAdapter<Player, PlayerViewHolder>(PlayerDiffCallback()) {
+class PlayerAdapter(private val playerDetailsListener: IPlayerDetailsListener)
+    : ListAdapter<Player, PlayerViewHolder>(PlayerDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemPlayerBinding.inflate(inflater, parent, false)
@@ -58,6 +68,6 @@ class PlayerAdapter : ListAdapter<Player, PlayerViewHolder>(PlayerDiffCallback()
     }
 
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
-        holder.bind(currentList[position])
+        holder.bind(currentList[position], playerDetailsListener)
     }
 }

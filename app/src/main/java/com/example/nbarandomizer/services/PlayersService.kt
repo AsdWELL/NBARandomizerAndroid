@@ -3,8 +3,11 @@ package com.example.nbarandomizer.services
 import android.content.Context
 import androidx.core.content.ContextCompat
 import com.example.nbarandomizer.R
+import com.example.nbarandomizer.models.AttributeRatings
+import com.example.nbarandomizer.models.Badge
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
+import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.models.Rating
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Element
@@ -14,6 +17,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -38,6 +42,13 @@ class PlayersService(private val context: Context) : Closeable {
         return when(epoch) {
             Epoch.Current -> "currentPlayers.json"
             Epoch.AllTime -> "allTimePlayers.json"
+        }
+    }
+
+    private fun getDetailsFileName(epoch: Epoch): String {
+        return when(epoch) {
+            Epoch.Current -> "currentPlayersDetails.json"
+            Epoch.AllTime -> "allTimePlayerDetails.json"
         }
     }
 
@@ -100,6 +111,7 @@ class PlayersService(private val context: Context) : Closeable {
                 val dunkRating = ratings[it * 3 + 2]
 
                 Player(
+                    id = it,
                     name = names[it],
                     team = playerInfo[2].trim(),
                     overall = Rating(overall, getOvrColor(overall)),
@@ -115,22 +127,72 @@ class PlayersService(private val context: Context) : Closeable {
         }
     }
 
-    private suspend fun savePlayersToFile(players: MutableList<Player>, epoch: Epoch) {
-        withContext(Dispatchers.IO) {
-            val fileName = getFileName(epoch)
+    private fun parseAttribute(input: String): Rating {
+        val pattern = Regex("""(\d+)\s*([+-]\d+\s+)?(.+)""")
 
-            val file = File(context.filesDir, fileName)
+        val matchResult = pattern.find(input)
+        val (value, _, name) = matchResult!!.destructured
 
-            FileOutputStream(file, false).use {
-                it.write(Json.encodeToString(players).toByteArray())
-            }
+        return Rating(value.toInt(), getStatColor(value.toInt()), name)
+    }
+
+    private fun parseAttributeCard(element: Element): AttributeRatings {
+        val header = element.select(".card-header").text()
+
+        val attrs = element.select(".list-group")[0].children().map { parseAttribute(it.text()) }
+
+        return AttributeRatings(parseAttribute(header), attrs)
+    }
+
+    private fun parseBadgeCard(element: Element): Badge {
+        val cardBody = element.select(".card-body")[0]
+
+        return Badge(
+            name = cardBody.child(0).text(),
+            type = cardBody.child(1).text(),
+            description = cardBody.child(2).text(),
+            photoUrl = element.child(0).child(0).attribute("data-src")?.value ?: ""
+        )
+    }
+
+    private suspend fun parsePlayersDetails(player: Player, content: String) = coroutineScope {
+        async {
+            val document = Ksoup.parse(content)
+
+            val attributesContent = document.select("#nav-attributes")
+
+            val attributes = if (attributesContent.isEmpty())
+                emptyList()
+            else
+                attributesContent[0].children()[0].children()
+                    .flatMap { it.select(".card") }
+                    .map(::parseAttributeCard)
+
+            val badgeCards = document.select(".badge-box")
+
+            val badges = if (badgeCards.isEmpty())
+                emptyList()
+            else
+                badgeCards[0].select("div.badge-card").map { parseBadgeCard(it.select(".badge-card")[0]) }
+
+            PlayerDetails(
+                id = player.id,
+                name = player.name,
+                team = player.team,
+                overall = player.overall,
+                height = player.height,
+                position = player.position,
+                photoUrl = player.photoUrl,
+                attributes = attributes,
+                badges = badges
+            )
         }
     }
 
     private suspend fun getPlayersFromCacheByEpoch(epoch: Epoch): MutableList<Player> {
         val fileName = getFileName(epoch)
 
-        val file = File(context.filesDir, fileName)
+        val file = File(context.cacheDir, fileName)
 
         return if (file.exists())
             withContext(Dispatchers.IO) {
@@ -138,6 +200,18 @@ class PlayersService(private val context: Context) : Closeable {
             }
         else
             mutableListOf()
+    }
+
+    private suspend fun savePlayersToFile(players: MutableList<Player>, epoch: Epoch) {
+        withContext(Dispatchers.IO) {
+            val fileName = getFileName(epoch)
+
+            val file = File(context.cacheDir, fileName)
+
+            FileOutputStream(file, false).use {
+                it.write(Json.encodeToString(players).toByteArray())
+            }
+        }
     }
 
     suspend fun downloadPlayersByEpoch(epoch: Epoch): MutableList<Player> {
@@ -163,6 +237,67 @@ class PlayersService(private val context: Context) : Closeable {
             }
 
         return players
+    }
+
+    private suspend fun downloadPlayerDetails(player: Player): PlayerDetails {
+        return try {
+            val content = _client.get(player.url).bodyAsText()
+
+            return parsePlayersDetails(player, content).await()
+        }
+        catch (ex: Exception) {
+            downloadPlayerDetails(player)
+        }
+    }
+
+    suspend fun downloadAndCachePlayersDetails(players: List<Player>, epoch: Epoch) = coroutineScope {
+        async {
+            val details = mutableListOf<PlayerDetails>()
+
+            players.chunked(players.size).forEach { chunk ->
+                val deferred = chunk.map { player ->
+                    async { downloadPlayerDetails(player) }
+                }
+
+                deferred.awaitAll().forEach {
+                    details.add(it)
+                }
+            }
+
+            val file = File(context.cacheDir, getDetailsFileName(epoch))
+
+            FileOutputStream(file, false).use {
+                it.write(Json.encodeToString(details).toByteArray())
+            }
+
+            details
+        }
+    }
+
+    private suspend fun getPlayersDetailsFromCacheByEpoch(epoch: Epoch): MutableList<PlayerDetails> {
+        val fileName = getDetailsFileName(epoch)
+
+        val file = File(context.cacheDir, fileName)
+
+        return if (file.exists())
+            withContext(Dispatchers.IO) {
+                Json.decodeFromString<MutableList<PlayerDetails>>(file.readText())
+            }
+        else
+            mutableListOf()
+    }
+
+    suspend fun getPlayersDetails(players: List<Player>, epoch: Epoch): MutableList<PlayerDetails> {
+        val details = getPlayersDetailsFromCacheByEpoch(epoch)
+
+        if (details.isEmpty())
+            return try {
+                downloadAndCachePlayersDetails(players, epoch).await()
+            } catch (ex: Exception) {
+                mutableListOf()
+            }
+
+        return details
     }
 
     override fun close() = _client.close()

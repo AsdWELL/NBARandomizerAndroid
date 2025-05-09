@@ -19,5 +19,4 @@ class ViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapte
     override fun createFragment(position: Int): Fragment {
         return fragments[position]
     }
-
 }

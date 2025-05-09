@@ -17,6 +17,7 @@ enum class Epoch {
 
 @Serializable
 data class Player(
+    val id: Int,
     var name: String,
     val team: String,
     val overall: Rating,

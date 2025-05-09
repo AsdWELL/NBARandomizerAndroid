@@ -159,7 +159,7 @@ class RandomizerFragment : Fragment() {
             player
         }
 
-        teamFragment.show(requireActivity().supportFragmentManager, "")
+        teamFragment.show(requireActivity().supportFragmentManager, "team")
 
         shuffledPlayers.value = players
     }

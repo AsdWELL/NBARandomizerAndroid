@@ -34,10 +34,13 @@
         <item name="android:layout_gravity">center</item>
     </style>
 
-    <style name="CenteredDialogTheme">
-        <item name="android:windowBackground">@drawable/rounded_dialog</item>
+    <style name="DialogTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="RoundedDialogTheme" parent="DialogTheme">
+        <item name="android:windowBackground">@drawable/rounded_dialog</item>
     </style>
 
     <style name="DialogAnimation">

@@ -18,6 +18,7 @@ import com.example.nbarandomizer.adapters.ViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
+import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.services.PlayersService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,7 +37,9 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         val selectedRoster: MutableLiveData<MutableList<Player>> = MutableLiveData(mutableListOf())
+        var playersDetails = mutableListOf<PlayerDetails>()
         var downloadingJob: Job? = null
+        var downloadingDetailsJob: Job? = null
     }
 
     private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>) {
@@ -64,16 +67,12 @@ class MainActivity : AppCompatActivity() {
 
         initializeViewPager()
 
-        binding.refreshBtn.setOnClickListener { downloadRoster() }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
         initializeSpinner(binding.epochSpinner, Epoch.entries.map { it.toString() })
         initializeSpinner(binding.versionSpinner, listOf("2K25", "2K24", "2K23", "2K22", "2K21"))
 
         getRoster()
+
+        binding.refreshBtn.setOnClickListener { downloadRoster() }
     }
 
     private fun initializeViewPager() {
@@ -85,12 +84,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopDownloadingJob() {
-        if (downloadingJob != null) {
+        if (downloadingDetailsJob != null)
+            if (downloadingDetailsJob?.isActive == true) {
+                downloadingDetailsJob?.cancel()
+                downloadingDetailsJob = null
+            }
+
+        if (downloadingJob != null)
             if (downloadingJob?.isActive == true) {
                 downloadingJob?.cancel()
                 downloadingJob = null
             }
-        }
     }
 
     private fun toastMessage(msg: String) {
@@ -151,20 +155,38 @@ class MainActivity : AppCompatActivity() {
     private fun getRoster() {
         stopDownloadingJob()
 
-        startDownloadingAnimation()
-
         val epoch = Epoch.valueOf(binding.epochSpinner.text.toString())
+
+        if (selectedRoster.value!!.isNotEmpty() && selectedRoster.value!![0].epoch == epoch)
+            return
+
+        startDownloadingAnimation()
 
         downloadingJob = lifecycleScope.launch(Dispatchers.IO) {
             val players = playersService.getPlayersByEpoch(epoch)
 
             withContext(Dispatchers.Main) {
-                downloadingAnimator.end()
+                if (players.isEmpty()) {
+                    downloadingAnimator.end()
+                    toastMessage("Интернет включи сука")
+                }
 
-                if (players.isEmpty())
-                    Toast.makeText(this@MainActivity, "Интернет включи сука", Toast.LENGTH_SHORT).show()
                 else
                     selectedRoster.value = players
+            }
+
+            if (players.isEmpty())
+                return@launch
+
+            downloadingDetailsJob = lifecycleScope.launch(Dispatchers.IO) {
+                val details = playersService.getPlayersDetails(selectedRoster.value!!, epoch)
+
+                withContext(Dispatchers.Main) {
+                    downloadingAnimator.end()
+
+                    playersDetails = details
+                    toastMessage("Все данные загружены")
+                }
             }
         }
     }

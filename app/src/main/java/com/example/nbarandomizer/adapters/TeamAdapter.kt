@@ -13,6 +13,7 @@ import com.example.nbarandomizer.ui.providers.CardOutlineProvider
 
 interface IPlayerCardListener {
     fun onClick(position: Int)
+    fun onLongClick(player: Player)
 }
 
 class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -51,6 +52,10 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
                 .into(photo)
 
             refreshBtn.setOnClickListener { playerCardListener.onClick(adapterPosition) }
+            itemView.setOnLongClickListener {
+                playerCardListener.onLongClick(player)
+                true
+            }
         }
     }
 }

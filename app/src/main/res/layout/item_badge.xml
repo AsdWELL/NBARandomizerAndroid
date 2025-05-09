@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/badgePhoto"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/badgeName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:text="Название баджа"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/badgePhoto"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/badgeType"
+        android:background="@drawable/outline_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Тип баджа"
+        android:layout_marginTop="5dp"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@+id/badgeName"
+        app:layout_constraintTop_toBottomOf="@+id/badgeName" />
+
+    <TextView
+        android:id="@+id/badgeDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Описание"
+        android:layout_marginTop="5dp"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/badgeName"
+        app:layout_constraintStart_toStartOf="@+id/badgeType"
+        app:layout_constraintTop_toBottomOf="@+id/badgeType"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

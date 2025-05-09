@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.nbarandomizer.R
@@ -45,6 +46,16 @@ class TeamFragment(private val players: MutableList<Player>,
 
                 adapter.submitList(newData)
             }
+
+            override fun onLongClick(player: Player) {
+                if (MainActivity.downloadingDetailsJob?.isActive == true) {
+                    Toast.makeText(context, "Погоди ща скачается", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                val dialog = PlayerDetailsFragment(MainActivity.playersDetails[player.id])
+                dialog.show(requireActivity().supportFragmentManager, "details")
+            }
         })
 
         binding.recyclerView.itemAnimator = PlayerCardAnimator()
@@ -62,7 +73,7 @@ class TeamFragment(private val players: MutableList<Player>,
     }
 
     override fun getTheme(): Int {
-        return R.style.CenteredDialogTheme
+        return R.style.RoundedDialogTheme
     }
 
     override fun onDestroy() {
