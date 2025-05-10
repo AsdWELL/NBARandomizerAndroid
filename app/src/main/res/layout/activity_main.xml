@@ -54,6 +54,18 @@
         app:layout_constraintTop_toTopOf="@+id/textInputLayout"
         app:srcCompat="@android:drawable/ic_popup_sync" />
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressBar"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
+        app:layout_constraintBottom_toTopOf="@id/indicator" />
+
     <me.relex.circleindicator.CircleIndicator3
         android:id="@+id/indicator"
         android:layout_width="wrap_content"
@@ -62,7 +74,8 @@
         app:ci_drawable="@drawable/indicator"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/progressBar"
+        app:layout_constraintBottom_toTopOf="@+id/viewPager" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"

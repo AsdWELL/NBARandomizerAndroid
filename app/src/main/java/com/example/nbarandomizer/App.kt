@@ -1,6 +1,7 @@
 package com.example.nbarandomizer
 
 import android.app.Application
+import androidx.core.content.ContextCompat
 import com.example.nbarandomizer.services.PlayersService
 
 class App : Application() {
@@ -9,7 +10,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        playersService = PlayersService(this)
+        playersService = PlayersService(this.cacheDir) { ContextCompat.getColor(this, it) }
     }
 
     override fun onTerminate() {

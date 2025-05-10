@@ -56,6 +56,8 @@ class MainActivity : AppCompatActivity() {
         observeViewModelStates()
 
         binding.refreshBtn.setOnClickListener { downloadRoster() }
+
+        playersService.notifyOnDownloadDetail = { binding.progressBar.progress++ }
     }
 
     override fun onResume() {
@@ -107,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel.uiState.observe(this) {
             when(it) {
                 is UiState.LoadingRoster -> {
-                    toastMessage("Загрузка ростера")
                     startDownloadingAnimation()
                 }
 
@@ -117,13 +118,15 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 is UiState.LoadingDetails -> {
-                    toastMessage("Загрузка атрибутов игроков")
                     startDownloadingAnimation()
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.progressBar.progress = 0
                 }
 
                 is UiState.SuccessDetails -> {
                     toastMessage("Атрибуты игроков загружены")
                     downloadingAnimator.end()
+                    binding.progressBar.visibility = View.GONE
                 }
 
                 is UiState.Error -> {

@@ -82,10 +82,7 @@ class SharedViewModel : ViewModel() {
             return
 
         downloadingJob = viewModelScope.launch {
-            if (_uiState.value is UiState.LoadingRoster)
-                return@launch
-
-            _uiState.value = UiState.LoadingRoster
+             _uiState.value = UiState.LoadingRoster
 
             val players = withContext(Dispatchers.IO) {
                 playersService.getPlayersByEpoch(epoch)
@@ -109,11 +106,9 @@ class SharedViewModel : ViewModel() {
                     playersService.getPlayersDetails(selectedRoster, epoch)
                 }
 
-                withContext(Dispatchers.Main) {
-                    playersDetails = details
+                playersDetails = details
 
-                    _uiState.value = UiState.SuccessDetails
-                }
+                _uiState.value = UiState.SuccessDetails
             }
         }
     }

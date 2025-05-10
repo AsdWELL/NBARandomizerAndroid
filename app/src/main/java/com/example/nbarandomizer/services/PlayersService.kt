@@ -1,7 +1,5 @@
 package com.example.nbarandomizer.services
 
-import android.content.Context
-import androidx.core.content.ContextCompat
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.models.AttributeRatings
 import com.example.nbarandomizer.models.Badge
@@ -26,10 +24,15 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.roundToInt
 
-class PlayersService(private val context: Context) : Closeable {
+class PlayersService(
+    private val cacheDir: File,
+    private val getColor: (colorId: Int) -> Int
+) : Closeable {
     private val _baseUrl = "https://www.2kratings.com/lists/top-100-"
 
     private val _client = HttpClient(CIO)
+
+    var notifyOnDownloadDetail: (() -> Unit)? = null
 
     private fun getSuffixUrl(epoch: Epoch): String {
         return when(epoch) {
@@ -69,8 +72,6 @@ class PlayersService(private val context: Context) : Closeable {
         return (inches * 2.54).roundToInt()
     }
 
-    private fun getColor(colorId: Int) = ContextCompat.getColor(context, colorId)
-
     private fun getOvrColor(ovr: Int): Int {
         return when(ovr) {
             in 0..83 -> getColor(R.color.ovr8083)
@@ -95,7 +96,7 @@ class PlayersService(private val context: Context) : Closeable {
     }
 
     private suspend fun parsePlayers(content: String, epoch: Epoch) = coroutineScope {
-        async {
+        async(Dispatchers.IO) {
             val document = Ksoup.parse(content)
 
             val names = document.select(".entry-font").map { it.text().trim() }
@@ -155,8 +156,8 @@ class PlayersService(private val context: Context) : Closeable {
         )
     }
 
-    private suspend fun parsePlayersDetails(player: Player, content: String) = coroutineScope {
-        async {
+    private suspend fun parsePlayersDetails(player: Player, content: String): PlayerDetails {
+        return withContext(Dispatchers.IO) {
             val document = Ksoup.parse(content)
 
             val attributesContent = document.select("#nav-attributes")
@@ -190,23 +191,23 @@ class PlayersService(private val context: Context) : Closeable {
     }
 
     private suspend fun getPlayersFromCacheByEpoch(epoch: Epoch): MutableList<Player> {
-        val fileName = getFileName(epoch)
+        return withContext(Dispatchers.IO) {
+            val fileName = getFileName(epoch)
 
-        val file = File(context.cacheDir, fileName)
+            val file = File(cacheDir, fileName)
 
-        return if (file.exists())
-            withContext(Dispatchers.IO) {
+            if (file.exists())
                 Json.decodeFromString<MutableList<Player>>(file.readText())
-            }
-        else
-            mutableListOf()
+            else
+                mutableListOf()
+        }
     }
 
     private suspend fun savePlayersToFile(players: MutableList<Player>, epoch: Epoch) {
         withContext(Dispatchers.IO) {
             val fileName = getFileName(epoch)
 
-            val file = File(context.cacheDir, fileName)
+            val file = File(cacheDir, fileName)
 
             FileOutputStream(file, false).use {
                 it.write(Json.encodeToString(players).toByteArray())
@@ -243,7 +244,13 @@ class PlayersService(private val context: Context) : Closeable {
         return try {
             val content = _client.get(player.url).bodyAsText()
 
-            return parsePlayersDetails(player, content).await()
+            val details =  parsePlayersDetails(player, content)
+
+            withContext(Dispatchers.Main) {
+                notifyOnDownloadDetail?.invoke()
+            }
+
+            return details
         }
         catch (ex: Exception) {
             downloadPlayerDetails(player)
@@ -251,20 +258,16 @@ class PlayersService(private val context: Context) : Closeable {
     }
 
     suspend fun downloadAndCachePlayersDetails(players: List<Player>, epoch: Epoch) = coroutineScope {
-        async {
-            val details = mutableListOf<PlayerDetails>()
+        async(Dispatchers.IO) {
+            val details: MutableList<PlayerDetails> = mutableListOf()
 
-            players.chunked(players.size).forEach { chunk ->
-                val deferred = chunk.map { player ->
-                    async { downloadPlayerDetails(player) }
-                }
-
-                deferred.awaitAll().forEach {
-                    details.add(it)
-                }
+            players.map {
+                async(Dispatchers.IO) { downloadPlayerDetails(it) }
+            }.awaitAll().forEach {
+                details.add(it)
             }
 
-            val file = File(context.cacheDir, getDetailsFileName(epoch))
+            val file = File(cacheDir, getDetailsFileName(epoch))
 
             FileOutputStream(file, false).use {
                 it.write(Json.encodeToString(details).toByteArray())
@@ -277,7 +280,7 @@ class PlayersService(private val context: Context) : Closeable {
     private suspend fun getPlayersDetailsFromCacheByEpoch(epoch: Epoch): MutableList<PlayerDetails> {
         val fileName = getDetailsFileName(epoch)
 
-        val file = File(context.cacheDir, fileName)
+        val file = File(cacheDir, fileName)
 
         return if (file.exists())
             withContext(Dispatchers.IO) {
