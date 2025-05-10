@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.databinding.FragmentRandomizerBinding
 import com.example.nbarandomizer.extensions.generateCompleteTeams
@@ -20,12 +21,15 @@ import com.example.nbarandomizer.extensions.getNextPlayerByPosition
 import com.example.nbarandomizer.extensions.randomize
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.Position
+import com.example.nbarandomizer.viewModels.SharedViewModel
 import com.google.android.material.chip.Chip
 
 class RandomizerFragment : Fragment() {
     private var _binding: FragmentRandomizerBinding? = null
 
     private val binding get() = _binding!!
+
+    private lateinit var sharedViewModel: SharedViewModel
 
     private var playersCount: Int = 1
 
@@ -39,6 +43,8 @@ class RandomizerFragment : Fragment() {
     ): View {
         _binding = FragmentRandomizerBinding.inflate(inflater, container, false)
 
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -49,7 +55,7 @@ class RandomizerFragment : Fragment() {
         setSeekBarListeners()
         setOnClickListeners()
 
-        MainActivity.selectedRoster.observe(viewLifecycleOwner) { reset() }
+        sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) { reset() }
         shuffledPlayers.observe(viewLifecycleOwner) { binding.remainingPlayersTextView.text = "Осталось игроков ${it.size}" }
 
         return binding.root
@@ -98,7 +104,7 @@ class RandomizerFragment : Fragment() {
     }
 
     private fun randomize() {
-        if (MainActivity.downloadingJob?.isActive == true) {
+        if (sharedViewModel.isDownloadingRoster()) {
             toastMessage("Говно скачивается")
             return
         }
@@ -111,7 +117,7 @@ class RandomizerFragment : Fragment() {
         var players = shuffledPlayers.value!!
 
         if (players.isEmpty())
-            players = MainActivity.selectedRoster.value!!.randomize()
+            players = sharedViewModel.selectedRoster.randomize()
 
         val randomizedPlayers = mutableListOf<Player>()
         val teamsCount = when (binding.twoTeamsSwitch.isChecked) {

@@ -6,16 +6,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.nbarandomizer.adapters.IPlayerDetailsListener
 import com.example.nbarandomizer.adapters.PlayerAdapter
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
 import com.example.nbarandomizer.models.Player
+import com.example.nbarandomizer.viewModels.SharedViewModel
 
 class RosterFragment : Fragment() {
     private var _binding: FragmentRosterBinding? = null
 
     private val binding get() = _binding!!
+
+    private lateinit var sharedViewModel: SharedViewModel
 
     private lateinit var adapter: PlayerAdapter
 
@@ -29,14 +33,16 @@ class RosterFragment : Fragment() {
     ): View {
         _binding = FragmentRosterBinding.inflate(inflater, container, false)
 
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+
         adapter = PlayerAdapter(object : IPlayerDetailsListener {
             override fun onClick(player: Player) {
-                if (MainActivity.downloadingDetailsJob?.isActive == true) {
+                if (sharedViewModel.isDownloadingDetails()) {
                     toastMessage("Погоди ща скачается")
                     return
                 }
 
-                val dialog = PlayerDetailsFragment(MainActivity.playersDetails[player.id])
+                val dialog = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id])
                 dialog.show(requireActivity().supportFragmentManager, "")
             }
         })
@@ -50,7 +56,7 @@ class RosterFragment : Fragment() {
     }
 
     private fun bindRoster() {
-        MainActivity.selectedRoster.observe(viewLifecycleOwner) { adapter.submitList(it) }
+        sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) { adapter.submitList(it) }
     }
 
     override fun onDestroy() {

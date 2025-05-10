@@ -11,22 +11,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import com.example.nbarandomizer.App
 import com.example.nbarandomizer.adapters.ViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
 import com.example.nbarandomizer.models.Epoch
-import com.example.nbarandomizer.models.Player
-import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.services.PlayersService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.nbarandomizer.viewModels.SharedViewModel
+import com.example.nbarandomizer.viewModels.UiState
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var sharedViewModel: SharedViewModel
 
     private val playersService: PlayersService
         get() = (applicationContext as App).playersService
@@ -35,25 +32,11 @@ class MainActivity : AppCompatActivity() {
         createDownloadingAnimation()
     }
 
-    companion object {
-        val selectedRoster: MutableLiveData<MutableList<Player>> = MutableLiveData(mutableListOf())
-        var playersDetails = mutableListOf<PlayerDetails>()
-        var downloadingJob: Job? = null
-        var downloadingDetailsJob: Job? = null
-    }
-
-    private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>) {
-        val adapter = ArrayAdapter(this, com.google.android.material.R.layout.support_simple_spinner_dropdown_item, values)
-
-        textView.setAdapter(adapter)
-        textView.setText(values[0], false)
-
-        textView.setOnItemClickListener { _, _, _, _ -> getRoster() }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
@@ -70,9 +53,25 @@ class MainActivity : AppCompatActivity() {
         initializeSpinner(binding.epochSpinner, Epoch.entries.map { it.toString() })
         initializeSpinner(binding.versionSpinner, listOf("2K25", "2K24", "2K23", "2K22", "2K21"))
 
-        getRoster()
+        observeViewModelStates()
 
         binding.refreshBtn.setOnClickListener { downloadRoster() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (sharedViewModel.uiState.value is UiState.Idle)
+            getRoster()
+    }
+
+    private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>) {
+        val adapter = ArrayAdapter(this, com.google.android.material.R.layout.support_simple_spinner_dropdown_item, values)
+
+        textView.setAdapter(adapter)
+        textView.setText(values[0], false)
+
+        textView.setOnItemClickListener { _, _, _, _ -> getRoster() }
     }
 
     private fun initializeViewPager() {
@@ -83,26 +82,8 @@ class MainActivity : AppCompatActivity() {
         binding.indicator.setViewPager(binding.viewPager)
     }
 
-    private fun stopDownloadingJob() {
-        if (downloadingDetailsJob != null)
-            if (downloadingDetailsJob?.isActive == true) {
-                downloadingDetailsJob?.cancel()
-                downloadingDetailsJob = null
-            }
-
-        if (downloadingJob != null)
-            if (downloadingJob?.isActive == true) {
-                downloadingJob?.cancel()
-                downloadingJob = null
-            }
-    }
-
     private fun toastMessage(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun badNetworkStateMessage() {
-        toastMessage("Интернет включи сука")
     }
 
     private fun createDownloadingAnimation(): ObjectAnimator {
@@ -118,82 +99,54 @@ class MainActivity : AppCompatActivity() {
             downloadingAnimator.start()
     }
 
-    private fun downloadRoster() {
-        stopDownloadingJob()
+    private fun getSelectedEpoch(): Epoch {
+        return Epoch.valueOf(binding.epochSpinner.text.toString())
+    }
 
-        startDownloadingAnimation()
-
-        val epoch = Epoch.valueOf(binding.epochSpinner.text.toString())
-
-        downloadingJob = lifecycleScope.launch(Dispatchers.IO) {
-            val players: MutableList<Player>
-
-            try {
-                players = playersService.downloadPlayersByEpoch(epoch)
-            }
-            catch (ex: Exception) {
-                withContext(Dispatchers.Main) {
-                    badNetworkStateMessage()
+    private fun observeViewModelStates() {
+        sharedViewModel.uiState.observe(this) {
+            when(it) {
+                is UiState.LoadingRoster -> {
+                    toastMessage("Загрузка ростера")
+                    startDownloadingAnimation()
                 }
-                return@launch
-            }
-            finally {
-                withContext(Dispatchers.Main) {
+
+                is UiState.SuccessRoster -> {
+                    toastMessage("Ростер загружен")
                     downloadingAnimator.end()
                 }
-            }
 
-            withContext(Dispatchers.Main) {
-                if (players.isNotEmpty())
-                    selectedRoster.value = players
+                is UiState.LoadingDetails -> {
+                    toastMessage("Загрузка атрибутов игроков")
+                    startDownloadingAnimation()
+                }
 
-                toastMessage("Данные обновлены")
+                is UiState.SuccessDetails -> {
+                    toastMessage("Атрибуты игроков загружены")
+                    downloadingAnimator.end()
+                }
+
+                is UiState.Error -> {
+                    toastMessage(it.msg)
+                    downloadingAnimator.end()
+                }
+
+                else -> Unit
             }
         }
+    }
+
+    private fun downloadRoster() {
+        sharedViewModel.downloadRoster(playersService, getSelectedEpoch())
     }
 
     private fun getRoster() {
-        stopDownloadingJob()
-
-        val epoch = Epoch.valueOf(binding.epochSpinner.text.toString())
-
-        if (selectedRoster.value!!.isNotEmpty() && selectedRoster.value!![0].epoch == epoch)
-            return
-
-        startDownloadingAnimation()
-
-        downloadingJob = lifecycleScope.launch(Dispatchers.IO) {
-            val players = playersService.getPlayersByEpoch(epoch)
-
-            withContext(Dispatchers.Main) {
-                if (players.isEmpty()) {
-                    downloadingAnimator.end()
-                    toastMessage("Интернет включи сука")
-                }
-
-                else
-                    selectedRoster.value = players
-            }
-
-            if (players.isEmpty())
-                return@launch
-
-            downloadingDetailsJob = lifecycleScope.launch(Dispatchers.IO) {
-                val details = playersService.getPlayersDetails(selectedRoster.value!!, epoch)
-
-                withContext(Dispatchers.Main) {
-                    downloadingAnimator.end()
-
-                    playersDetails = details
-                    toastMessage("Все данные загружены")
-                }
-            }
-        }
+        sharedViewModel.getRosterAndDetails(playersService, getSelectedEpoch())
     }
 
-    override fun onStop() {
-        stopDownloadingJob()
+    override fun onDestroy() {
+        sharedViewModel.stopDownloadingJob()
 
-        super.onStop()
+        super.onDestroy()
     }
 }

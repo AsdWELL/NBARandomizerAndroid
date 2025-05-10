@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.IPlayerCardListener
@@ -14,6 +15,7 @@ import com.example.nbarandomizer.animators.PlayerCardAnimator
 import com.example.nbarandomizer.adapters.TeamAdapter
 import com.example.nbarandomizer.databinding.TeamLayoutBinding
 import com.example.nbarandomizer.models.Player
+import com.example.nbarandomizer.viewModels.SharedViewModel
 
 class TeamFragment(private val players: MutableList<Player>,
                    private val teamsCount: Int,
@@ -22,6 +24,8 @@ class TeamFragment(private val players: MutableList<Player>,
     private var _binding: TeamLayoutBinding? = null
 
     private val binding get() = _binding!!
+
+    private lateinit var sharedViewModel: SharedViewModel
 
     private lateinit var adapter: TeamAdapter
 
@@ -38,6 +42,8 @@ class TeamFragment(private val players: MutableList<Player>,
     ): View {
         _binding = TeamLayoutBinding.inflate(inflater, container, false)
 
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+
         adapter = TeamAdapter(object : IPlayerCardListener {
             override fun onClick(position: Int) {
                 val newData = adapter.currentList.toMutableList().apply {
@@ -48,12 +54,12 @@ class TeamFragment(private val players: MutableList<Player>,
             }
 
             override fun onLongClick(player: Player) {
-                if (MainActivity.downloadingDetailsJob?.isActive == true) {
+                if (sharedViewModel.isDownloadingDetails()) {
                     Toast.makeText(context, "Погоди ща скачается", Toast.LENGTH_SHORT).show()
                     return
                 }
 
-                val dialog = PlayerDetailsFragment(MainActivity.playersDetails[player.id])
+                val dialog = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id])
                 dialog.show(requireActivity().supportFragmentManager, "details")
             }
         })
