@@ -106,7 +106,7 @@
             android:id="@+id/badgeInfo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/badgesText"
+            android:text="Загрузка..."
             android:textSize="20sp"
             android:textStyle="bold|italic"
             app:layout_constraintEnd_toEndOf="parent"

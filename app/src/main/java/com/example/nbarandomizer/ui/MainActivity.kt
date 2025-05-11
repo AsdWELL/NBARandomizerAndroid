@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.refreshBtn.setOnClickListener { downloadRoster() }
 
-        playersService.notifyOnDownloadDetail = { binding.progressBar.progress++ }
+        playersService.notifyProgressBar = { binding.progressBar.progress++ }
     }
 
     override fun onResume() {

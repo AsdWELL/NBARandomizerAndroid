@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -17,6 +18,8 @@ import com.example.nbarandomizer.adapters.BadgesAdapter
 import com.example.nbarandomizer.databinding.PlayerDetailsBinding
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFragment() {
     private var _binding: PlayerDetailsBinding? = null
@@ -62,11 +65,19 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
             setupCard(overallCardView)
             setCardColor(overallCardView, playerDetails.overall.color)
 
-            attributesRecyclerView.layoutManager = GridLayoutManager(context, 2)
-            attributesRecyclerView.adapter = attributesAdapter
+            lifecycleScope.launch {
+                delay(100)
 
-            badgesRecyclerView.layoutManager = LinearLayoutManager(context)
-            badgesRecyclerView.adapter = badgesAdapter
+                attributesRecyclerView.layoutManager = GridLayoutManager(context, 2)
+                attributesRecyclerView.adapter = attributesAdapter
+
+                delay(100)
+
+                badgesRecyclerView.layoutManager = LinearLayoutManager(context)
+                badgesRecyclerView.adapter = badgesAdapter
+
+                badgeInfo.text = getString(R.string.badgesText)
+            }
         }
     }
 

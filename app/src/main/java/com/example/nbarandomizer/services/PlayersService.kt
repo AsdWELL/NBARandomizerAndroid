@@ -13,15 +13,18 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToInt
 
 class PlayersService(
@@ -32,7 +35,7 @@ class PlayersService(
 
     private val _client = HttpClient(CIO)
 
-    var notifyOnDownloadDetail: (() -> Unit)? = null
+    var notifyProgressBar: (() -> Unit)? = null
 
     private fun getSuffixUrl(epoch: Epoch): String {
         return when(epoch) {
@@ -220,7 +223,9 @@ class PlayersService(
 
         val content = _client.get("$_baseUrl$suffixUrl").bodyAsText()
 
-        val players = parsePlayers(content, epoch).await()
+        val trimmedContent = content.substring(content.indexOf("<tbody>"), content.indexOf("</tbody>"))
+
+        val players = parsePlayers(trimmedContent, epoch).await()
 
         savePlayersToFile(players, epoch)
 
@@ -244,13 +249,21 @@ class PlayersService(
         return try {
             val content = _client.get(player.url).bodyAsText()
 
-            val details =  parsePlayersDetails(player, content)
+            val trimmedContent = content.substring(
+                content.indexOf("<!-- Start Atrributes Tab -->"),
+                content.indexOf("<!-- End Badges Tab -->")
+            )
+
+            val details =  parsePlayersDetails(player, trimmedContent)
 
             withContext(Dispatchers.Main) {
-                notifyOnDownloadDetail?.invoke()
+                notifyProgressBar?.invoke()
             }
 
             return details
+        }
+        catch (ex: CancellationException) {
+            throw ex
         }
         catch (ex: Exception) {
             downloadPlayerDetails(player)
@@ -259,13 +272,9 @@ class PlayersService(
 
     suspend fun downloadAndCachePlayersDetails(players: List<Player>, epoch: Epoch) = coroutineScope {
         async(Dispatchers.IO) {
-            val details: MutableList<PlayerDetails> = mutableListOf()
-
-            players.map {
+            val details = players.map {
                 async(Dispatchers.IO) { downloadPlayerDetails(it) }
-            }.awaitAll().forEach {
-                details.add(it)
-            }
+            }.awaitAll().toMutableList()
 
             val file = File(cacheDir, getDetailsFileName(epoch))
 
