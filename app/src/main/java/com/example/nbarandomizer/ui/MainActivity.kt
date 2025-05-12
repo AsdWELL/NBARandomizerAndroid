@@ -15,6 +15,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.nbarandomizer.App
 import com.example.nbarandomizer.adapters.ViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
+import com.example.nbarandomizer.extensions.hide
+import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.services.PlayersService
 import com.example.nbarandomizer.viewModels.SharedViewModel
@@ -84,10 +86,6 @@ class MainActivity : AppCompatActivity() {
         binding.indicator.setViewPager(binding.viewPager)
     }
 
-    private fun toastMessage(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-    }
-
     private fun createDownloadingAnimation(): ObjectAnimator {
         return ObjectAnimator.ofFloat(binding.refreshBtn, View.ROTATION, 0f, 360f).apply {
             duration = 800
@@ -105,33 +103,50 @@ class MainActivity : AppCompatActivity() {
         return Epoch.valueOf(binding.epochSpinner.text.toString())
     }
 
+    private fun setStatusText(text: String) {
+        with(binding.statusTextView) {
+            this.text = text
+            show()
+        }
+    }
+
     private fun observeViewModelStates() {
         sharedViewModel.uiState.observe(this) {
             when(it) {
                 is UiState.LoadingRoster -> {
                     startDownloadingAnimation()
+
+                    setStatusText("Загрузка ростера...")
+                    binding.progressBar.hide()
                 }
 
                 is UiState.SuccessRoster -> {
-                    toastMessage("Ростер загружен")
+                    binding.statusTextView.hide()
+
                     downloadingAnimator.end()
                 }
 
                 is UiState.LoadingDetails -> {
                     startDownloadingAnimation()
-                    binding.progressBar.visibility = View.VISIBLE
+
+                    setStatusText("Загрузка атрибутов игроков...")
+                    binding.progressBar.show()
                     binding.progressBar.progress = 0
                 }
 
                 is UiState.SuccessDetails -> {
-                    toastMessage("Атрибуты игроков загружены")
                     downloadingAnimator.end()
-                    binding.progressBar.visibility = View.GONE
+
+                    binding.progressBar.hide()
+                    binding.statusTextView.hide()
                 }
 
                 is UiState.Error -> {
-                    toastMessage(it.msg)
+                    setStatusText(it.msg)
+
                     downloadingAnimator.end()
+
+                    binding.progressBar.hide()
                 }
 
                 else -> Unit

@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginEnd="10dp"
+        android:tint="@color/white"
         android:src="@drawable/randomize_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -31,6 +32,8 @@
     <SeekBar
         android:id="@+id/playersCountSeekBar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:thumbTint="?attr/colorPrimary"
+        android:progressTint="?attr/colorPrimary"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:max="4"
