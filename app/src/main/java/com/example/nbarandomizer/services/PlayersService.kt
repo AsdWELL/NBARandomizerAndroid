@@ -17,14 +17,12 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
-import kotlin.coroutines.coroutineContext
 import kotlin.math.roundToInt
 
 class PlayersService(
@@ -245,7 +243,7 @@ class PlayersService(
         return players
     }
 
-    private suspend fun downloadPlayerDetails(player: Player): PlayerDetails {
+    suspend fun downloadPlayerDetails(player: Player): PlayerDetails {
         return try {
             val content = _client.get(player.url).bodyAsText()
 
@@ -270,17 +268,23 @@ class PlayersService(
         }
     }
 
-    suspend fun downloadAndCachePlayersDetails(players: List<Player>, epoch: Epoch) = coroutineScope {
+    suspend fun cachePlayerDetails(playerDetails: List<PlayerDetails>, epoch: Epoch) {
+        withContext(Dispatchers.IO) {
+            val file = File(cacheDir, getDetailsFileName(epoch))
+
+            FileOutputStream(file, false).use {
+                it.write(Json.encodeToString(playerDetails).toByteArray())
+            }
+        }
+    }
+
+    private suspend fun downloadAndCachePlayersDetails(players: List<Player>, epoch: Epoch) = coroutineScope {
         async(Dispatchers.IO) {
             val details = players.map {
                 async(Dispatchers.IO) { downloadPlayerDetails(it) }
             }.awaitAll().toMutableList()
 
-            val file = File(cacheDir, getDetailsFileName(epoch))
-
-            FileOutputStream(file, false).use {
-                it.write(Json.encodeToString(details).toByteArray())
-            }
+            cachePlayerDetails(details, epoch)
 
             details
         }

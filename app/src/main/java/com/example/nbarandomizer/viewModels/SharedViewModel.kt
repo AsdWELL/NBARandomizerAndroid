@@ -7,9 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.PlayerDetails
+import com.example.nbarandomizer.models.Rating
 import com.example.nbarandomizer.services.PlayersService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,6 +45,36 @@ class SharedViewModel : ViewModel() {
     var playersDetails = mutableListOf<PlayerDetails>()
         private set
 
+    private suspend fun findChanges(oldData: List<Player>, newData: List<Player>): MutableList<Player> {
+        return withContext(Dispatchers.IO) {
+            val changes = mutableListOf<Player>()
+
+            for (i in oldData.indices)
+                if (oldData[i] != newData[i])
+                    changes.add(newData[i])
+
+            changes
+        }
+    }
+
+    private suspend fun updatePlayersDetails(playersService: PlayersService, updatedPlayers: List<Player>, epoch: Epoch) {
+        withContext(Dispatchers.IO) {
+            val newDetails = updatedPlayers.map {
+                viewModelScope.async(Dispatchers.IO) { playersService.downloadPlayerDetails(it) }
+            }.awaitAll()
+
+            newDetails.forEach {
+                playersDetails[it.id] = it
+            }
+
+            playersService.cachePlayerDetails(playersDetails, epoch)
+
+            withContext(Dispatchers.Main) {
+                _uiState.value = UiState.SuccessDetails
+            }
+        }
+    }
+
     fun stopDownloadingJob() {
         downloadingJob?.cancel()
         downloadingDetailsJob?.cancel()
@@ -50,7 +83,7 @@ class SharedViewModel : ViewModel() {
         downloadingDetailsJob = null
     }
 
-    fun downloadRoster(playersService: PlayersService, epoch: Epoch) {
+    fun downloadRosterAndDetails(playersService: PlayersService, epoch: Epoch) {
         stopDownloadingJob()
 
         downloadingJob = viewModelScope.launch {
@@ -69,9 +102,17 @@ class SharedViewModel : ViewModel() {
                 return@launch
             }
 
+            val updatedPlayers = findChanges(selectedRoster, players)
+
             selectedRoster = players
 
             _uiState.value = UiState.SuccessRoster
+
+            if (updatedPlayers.size > 0) {
+                _uiState.value = UiState.LoadingDetails
+
+                updatePlayersDetails(playersService, updatedPlayers, epoch)
+            }
         }
     }
 
