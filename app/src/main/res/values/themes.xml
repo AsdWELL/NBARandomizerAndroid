@@ -1,16 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.NBARandomizerAndroid" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">#ccb6ff</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">#271055</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">#4e3b7c</item>
-        <item name="colorSecondaryVariant">#4a4458</item>
-        <item name="colorOnSecondary">#e9ddff</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    <style name="Theme.NBARandomizerAndroid" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorControlHighlight">#40CCB6FF</item>
         <!-- Customize your theme here. -->
     </style>
 
@@ -46,5 +37,18 @@
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@anim/card_in</item>
         <item name="android:windowExitAnimation">@anim/card_out</item>
+    </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="dividerColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="BackGroundCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">6dp</item>
     </style>
 </resources>

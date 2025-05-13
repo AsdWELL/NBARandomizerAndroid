@@ -19,6 +19,7 @@
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/epochSpinner"
             android:inputType="none"
+            android:padding="0dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -37,6 +38,7 @@
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/versionSpinner"
+            android:padding="0dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inputType="none" />

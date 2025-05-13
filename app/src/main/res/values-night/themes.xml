@@ -1,17 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.NBARandomizerAndroid" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">#ccb6ff</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">#271055</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">#4e3b7c</item>
-        <item name="colorSecondaryVariant">#4a4458</item>
-        <item name="colorOnSecondary">#e9ddff</item>
+    <style name="Theme.NBARandomizerAndroid" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorControlHighlight">#40CCB6FF</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -18,69 +19,133 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/playersCountTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Игроков: 1"
-        android:textSize="20sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/playersCountSeekBar"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card1"
+        style="@style/BackGroundCard"
+        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="30dp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/card2">
 
-    <SeekBar
-        android:id="@+id/playersCountSeekBar"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:thumbTint="?attr/colorPrimary"
-        android:progressTint="?attr/colorPrimary"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:max="4"
-        android:min="0"
-        android:progress="0"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="5dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/twoTeamsText"
+                android:textSize="20sp"
+                android:textStyle="bold|italic"
+                app:layout_constraintBottom_toBottomOf="@+id/twoTeamsSwitch"
+                app:layout_constraintEnd_toStartOf="@+id/twoTeamsSwitch"
+                app:layout_constraintStart_toStartOf="@+id/playersCountSeekBar"
+                app:layout_constraintTop_toTopOf="@+id/twoTeamsSwitch" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/twoTeamsSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@+id/playersCountTextView"
+                app:layout_constraintEnd_toEndOf="@+id/playersCountSeekBar" />
+
+            <com.google.android.material.divider.MaterialDivider
+                style="@style/Divider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/twoTeamsSwitch"
+                app:layout_constraintBottom_toTopOf="@id/playersCountTextView" />
+
+            <TextView
+                android:id="@+id/playersCountTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Игроков: 1"
+                android:textSize="20sp"
+                android:textStyle="bold|italic"
+                app:layout_constraintBottom_toTopOf="@+id/playersCountSeekBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <SeekBar
+                style="@android:style/Widget.Material.SeekBar.Discrete"
+                android:id="@+id/playersCountSeekBar"
+                android:thumbTint="?attr/colorPrimary"
+                android:progressTint="?attr/colorPrimary"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:max="4"
+                android:min="0"
+                android:progress="0"
+                android:layout_marginBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card2"
+        style="@style/BackGroundCard"
+        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="30dp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/card3">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/positionsTitle"
-        android:textSize="20sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/positionsChips"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:paddingTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="@string/positionsTitle"
+                android:textSize="20sp"
+                android:textStyle="bold|italic"
+                app:layout_constraintBottom_toTopOf="@id/positionsChips" />
+
+            <com.google.android.material.divider.MaterialDivider
+                style="@style/Divider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textView"
+                app:layout_constraintBottom_toTopOf="@id/positionsChips" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/positionsChips"
+                app:singleSelection="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card3"
+        style="@style/BackGroundCard"
+        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="30dp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/resetBtn">
+        <TextView
+            android:id="@+id/remainingPlayersTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAlignment="center"
+            android:padding="5dp"
+            android:textSize="20sp"
+            android:textStyle="bold|italic" />
+    </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/positionsChips"
-        app:singleSelection="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@id/remainingPlayersTextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-    </com.google.android.material.chip.ChipGroup>
-
-    <TextView
-        android:id="@+id/remainingPlayersTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Осталось хуй знает"
-        android:textSize="20sp"
-        android:layout_marginBottom="10dp"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toTopOf="@+id/resetBtn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/resetBtn"
-        style="@style/Widget.Material3.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/resetBtnText"
@@ -90,23 +155,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/randomizeButton" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/twoTeamsText"
-        android:textSize="20sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toBottomOf="@+id/twoTeamsSwitch"
-        app:layout_constraintEnd_toStartOf="@+id/twoTeamsSwitch"
-        app:layout_constraintStart_toStartOf="@+id/playersCountSeekBar"
-        app:layout_constraintTop_toTopOf="@+id/twoTeamsSwitch" />
-
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/twoTeamsSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/playersCountTextView"
-        app:layout_constraintEnd_toEndOf="@+id/playersCountSeekBar" />
 </androidx.constraintlayout.widget.ConstraintLayout>
