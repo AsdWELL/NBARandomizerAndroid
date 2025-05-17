@@ -1,4 +1,4 @@
-package com.example.nbarandomizer.ui
+package com.example.nbarandomizer.ui.playerDetails
 
 import android.app.Dialog
 import android.os.Bundle

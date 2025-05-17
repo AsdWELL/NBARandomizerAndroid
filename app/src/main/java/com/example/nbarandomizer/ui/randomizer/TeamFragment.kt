@@ -1,6 +1,5 @@
-package com.example.nbarandomizer.ui
+package com.example.nbarandomizer.ui.randomizer
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +14,7 @@ import com.example.nbarandomizer.adapters.TeamAdapter
 import com.example.nbarandomizer.databinding.TeamLayoutBinding
 import com.example.nbarandomizer.listeners.IPlayerCardListener
 import com.example.nbarandomizer.models.Player
+import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
 import com.example.nbarandomizer.viewModels.SharedViewModel
 
 class TeamFragment(private val players: MutableList<Player>,

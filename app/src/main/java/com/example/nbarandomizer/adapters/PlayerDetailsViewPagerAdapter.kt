@@ -5,8 +5,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.nbarandomizer.listeners.IPageReadyListener
 import com.example.nbarandomizer.models.PlayerDetails
-import com.example.nbarandomizer.ui.AttributesFragment
-import com.example.nbarandomizer.ui.BadgesFragment
+import com.example.nbarandomizer.ui.playerDetails.AttributesFragment
+import com.example.nbarandomizer.ui.playerDetails.BadgesFragment
 
 class PlayerDetailsViewPagerAdapter(
     fragmentActivity: FragmentActivity,

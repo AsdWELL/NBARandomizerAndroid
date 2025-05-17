@@ -1,4 +1,4 @@
-package com.example.nbarandomizer.ui
+package com.example.nbarandomizer.ui.randomizer
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

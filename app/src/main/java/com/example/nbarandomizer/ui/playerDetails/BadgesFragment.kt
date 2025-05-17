@@ -1,4 +1,4 @@
-package com.example.nbarandomizer.ui
+package com.example.nbarandomizer.ui.playerDetails
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,39 +6,39 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import com.example.nbarandomizer.adapters.AttributesAdapter
-import com.example.nbarandomizer.databinding.FragmentAttributesBinding
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.nbarandomizer.adapters.BadgesAdapter
+import com.example.nbarandomizer.databinding.FragmentBadgesBinding
 import com.example.nbarandomizer.listeners.IPageReadyListener
-import com.example.nbarandomizer.models.AttributeRatings
+import com.example.nbarandomizer.models.Badge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class AttributesFragment(
-    private val attrs: List<AttributeRatings>,
+class BadgesFragment(
+    private val badges: List<Badge>,
     private val onPageReadyListener: IPageReadyListener
 ) : Fragment() {
-    private var _binding: FragmentAttributesBinding? = null
+    private var _binding: FragmentBadgesBinding? = null
 
     private val binding get() = _binding!!
 
-    private lateinit var adapter: AttributesAdapter
+    private lateinit var adapter: BadgesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAttributesBinding.inflate(inflater, container, false)
+        _binding = FragmentBadgesBinding.inflate(inflater, container, false)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            adapter = AttributesAdapter()
-            adapter.attributesCollections = attrs
+            adapter = BadgesAdapter()
+            adapter.badgeCollection = badges
 
             withContext(Dispatchers.Main) {
-                binding.attributesRecyclerView.layoutManager = GridLayoutManager(context, 2)
-                binding.attributesRecyclerView.adapter = adapter
+                binding.badgesRecyclerView.layoutManager = LinearLayoutManager(context)
+                binding.badgesRecyclerView.adapter = adapter
 
                 onPageReadyListener.onPageLoad()
             }

@@ -36,6 +36,8 @@ class SharedViewModel : ViewModel() {
     private val _uiState = MutableLiveData<UiState>(UiState.Idle)
     val uiState: LiveData<UiState> get() = _uiState
 
+    var epoch = Epoch.Current
+
     var selectedRoster
         get() = _selectedRosterBinding.value!!
         private set(value) {
@@ -83,7 +85,7 @@ class SharedViewModel : ViewModel() {
         downloadingDetailsJob = null
     }
 
-    fun downloadRosterAndDetails(playersService: PlayersService, epoch: Epoch) {
+    fun downloadRosterAndDetails(playersService: PlayersService) {
         stopDownloadingJob()
 
         downloadingJob = viewModelScope.launch {
@@ -116,7 +118,7 @@ class SharedViewModel : ViewModel() {
         }
     }
 
-    fun getRosterAndDetails(playersService: PlayersService, epoch: Epoch) {
+    fun getRosterAndDetails(playersService: PlayersService) {
         stopDownloadingJob()
 
         if (selectedRoster.isNotEmpty() && selectedRoster[0].epoch == epoch)

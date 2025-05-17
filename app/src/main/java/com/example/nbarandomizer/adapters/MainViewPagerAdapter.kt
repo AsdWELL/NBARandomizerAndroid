@@ -3,10 +3,10 @@ package com.example.nbarandomizer.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.nbarandomizer.ui.RandomizerFragment
-import com.example.nbarandomizer.ui.RosterFragment
+import com.example.nbarandomizer.ui.randomizer.RandomizerFragment
+import com.example.nbarandomizer.ui.roster.RosterFragment
 
-class ViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
+class MainViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
     private val fragments = listOf(
         RandomizerFragment(),
         RosterFragment()

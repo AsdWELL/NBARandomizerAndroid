@@ -12,7 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.nbarandomizer.App
-import com.example.nbarandomizer.adapters.ViewPagerAdapter
+import com.example.nbarandomizer.adapters.MainViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
 import com.example.nbarandomizer.extensions.hide
 import com.example.nbarandomizer.extensions.show
@@ -20,6 +20,7 @@ import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.services.PlayersService
 import com.example.nbarandomizer.viewModels.SharedViewModel
 import com.example.nbarandomizer.viewModels.UiState
+import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -51,9 +52,6 @@ class MainActivity : AppCompatActivity() {
 
         initializeViewPager()
 
-        initializeSpinner(binding.epochSpinner, Epoch.entries.map { it.toString() })
-        initializeSpinner(binding.versionSpinner, listOf("2K25", "2K24", "2K23", "2K22", "2K21"))
-
         observeViewModelStates()
 
         binding.refreshBtn.setOnClickListener { downloadRoster() }
@@ -64,24 +62,42 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        initializeSpinners()
+
         if (sharedViewModel.uiState.value is UiState.Idle)
             getRoster()
+    }
+
+    private fun initializeSpinners() {
+        initializeSpinner(binding.epochSpinner, Epoch.entries.map { it.toString() })
+        binding.epochSpinner.setText(sharedViewModel.epoch.name, false)
+
+        val versions = listOf("2K25", "2K24", "2K23", "2K22", "2K21")
+
+        initializeSpinner(binding.versionSpinner, versions)
+        binding.versionSpinner.setText(versions[0], false)
     }
 
     private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>) {
         val adapter = ArrayAdapter(this, com.google.android.material.R.layout.support_simple_spinner_dropdown_item, values)
 
         textView.setAdapter(adapter)
-        textView.setText(values[0], false)
 
         textView.setOnItemClickListener { _, _, _, _ -> getRoster() }
     }
 
     private fun initializeViewPager() {
         with(binding.viewPager) {
-            adapter = ViewPagerAdapter(this@MainActivity)
-            binding.indicator.setViewPager(this)
+            offscreenPageLimit = 2
+            adapter = MainViewPagerAdapter(this@MainActivity)
         }
+
+        TabLayoutMediator(binding.tabs, binding.viewPager) { tab, position ->
+            when(position) {
+                0 -> tab.text = "Randomizer"
+                1 -> tab.text = "Roster"
+            }
+        }.attach()
     }
 
     private fun createDownloadingAnimation(): ObjectAnimator {
@@ -153,11 +169,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun downloadRoster() {
-        sharedViewModel.downloadRosterAndDetails(playersService, getSelectedEpoch())
+        sharedViewModel.downloadRosterAndDetails(playersService)
     }
 
     private fun getRoster() {
-        sharedViewModel.getRosterAndDetails(playersService, getSelectedEpoch())
+        sharedViewModel.epoch = getSelectedEpoch()
+
+        sharedViewModel.getRosterAndDetails(playersService)
     }
 
     override fun onDestroy() {
