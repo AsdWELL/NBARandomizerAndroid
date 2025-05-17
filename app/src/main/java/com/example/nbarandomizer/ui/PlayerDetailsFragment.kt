@@ -8,26 +8,24 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.nbarandomizer.R
-import com.example.nbarandomizer.adapters.AttributesAdapter
-import com.example.nbarandomizer.adapters.BadgesAdapter
+import com.example.nbarandomizer.adapters.PlayerDetailsViewPagerAdapter
 import com.example.nbarandomizer.databinding.PlayerDetailsBinding
+import com.example.nbarandomizer.extensions.hide
+import com.example.nbarandomizer.listeners.IPageReadyListener
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.google.android.material.tabs.TabLayoutMediator
 
 class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFragment() {
     private var _binding: PlayerDetailsBinding? = null
 
     private val binding get() = _binding!!
 
-    private lateinit var attributesAdapter: AttributesAdapter
-    private lateinit var badgesAdapter: BadgesAdapter
+    private var loadedPages = 0
+
+    private val totalPages = 2
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
@@ -59,26 +57,35 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
             position.text = "Position: ${playerDetails.position}"
             overallTextView.text = playerDetails.overall.value.toString()
 
-            if (playerDetails.badges.isEmpty())
-                badgeInfo.text = ""
-
             setupCard(overallCardView)
             setCardColor(overallCardView, playerDetails.overall.color)
 
-            lifecycleScope.launch {
-                delay(100)
-
-                attributesRecyclerView.layoutManager = GridLayoutManager(context, 2)
-                attributesRecyclerView.adapter = attributesAdapter
-
-                delay(100)
-
-                badgesRecyclerView.layoutManager = LinearLayoutManager(context)
-                badgesRecyclerView.adapter = badgesAdapter
-
-                badgeInfo.text = getString(R.string.badgesText)
-            }
+            initializeViewPager()
         }
+    }
+
+    private fun initializeViewPager() {
+        with(binding.viewPager) {
+            offscreenPageLimit = 2
+            adapter = PlayerDetailsViewPagerAdapter(
+                requireActivity(),
+                playerDetails,
+                object : IPageReadyListener {
+                    override fun onPageLoad() {
+                        loadedPages++
+
+                        if (loadedPages == totalPages)
+                            binding.progressBar.hide()
+                    }
+                })
+        }
+
+        TabLayoutMediator(binding.tabs, binding.viewPager) { tab, position ->
+            when(position) {
+                0 -> tab.text = "Attributes"
+                1 -> tab.text = "Badges"
+            }
+        }.attach()
     }
 
     override fun onCreateView(
@@ -88,11 +95,7 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
     ): View {
         _binding = PlayerDetailsBinding.inflate(inflater, container, false)
 
-        attributesAdapter = AttributesAdapter()
-        attributesAdapter.attributesCollections = playerDetails.attributes
-
-        badgesAdapter = BadgesAdapter()
-        badgesAdapter.badgeCollection = playerDetails.badges
+        setDetails()
 
         return binding.root
     }
@@ -108,8 +111,6 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT
         )
-
-        setDetails()
     }
 
     override fun getTheme(): Int {

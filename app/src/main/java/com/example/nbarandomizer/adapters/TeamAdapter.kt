@@ -8,13 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.nbarandomizer.callbacks.PlayerDiffCallback
 import com.example.nbarandomizer.databinding.PlayerCardBinding
+import com.example.nbarandomizer.listeners.IPlayerCardListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
-
-interface IPlayerCardListener {
-    fun onClick(position: Int)
-    fun onLongClick(player: Player)
-}
 
 class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.ViewHolder(binding.root) {
     init {

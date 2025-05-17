@@ -67,62 +67,62 @@
             app:layout_constraintStart_toStartOf="@+id/name"
             app:layout_constraintTop_toBottomOf="@+id/height" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/overallCardView"
-            style="@style/ratingCard"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/position">
-
-            <TextView
-                android:id="@+id/overallTextView"
-                style="@style/ratingText" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/overall"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/overallLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/overallText"
-            android:layout_marginStart="10dp"
-            android:textSize="20sp"
-            android:textStyle="bold|italic"
-            app:layout_constraintBottom_toBottomOf="@+id/overallCardView"
-            app:layout_constraintStart_toEndOf="@+id/overallCardView"
-            app:layout_constraintTop_toTopOf="@+id/overallCardView" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/attributesRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:nestedScrollingEnabled="false"
-            android:layout_marginTop="10dp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/overallCardView" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/position">
 
-        <TextView
-            android:id="@+id/badgeInfo"
-            android:layout_width="0dp"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/overallCardView"
+                style="@style/ratingCard"
+                android:layout_marginStart="10dp"
+                android:layout_marginVertical="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <TextView
+                    android:id="@+id/overallTextView"
+                    style="@style/ratingText" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/overall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/overallText"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold|italic"
+                app:layout_constraintBottom_toBottomOf="@+id/overallCardView"
+                app:layout_constraintStart_toEndOf="@+id/overallCardView"
+                app:layout_constraintTop_toTopOf="@+id/overallCardView" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Загрузка..."
-            android:textSize="20sp"
-            android:textStyle="bold|italic"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/overallCardView"
-            app:layout_constraintTop_toBottomOf="@+id/attributesRecyclerView" />
+            app:layout_constraintTop_toBottomOf="@id/viewPager"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/badgesRecyclerView"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/overallLayout" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:nestedScrollingEnabled="false"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/badgeInfo" />
+            app:layout_constraintTop_toBottomOf="@id/tabs" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

@@ -78,11 +78,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeViewPager() {
-        val viewPager = binding.viewPager
-        val adapter = ViewPagerAdapter(this)
-        viewPager.adapter = adapter
-
-        binding.indicator.setViewPager(binding.viewPager)
+        with(binding.viewPager) {
+            adapter = ViewPagerAdapter(this@MainActivity)
+            binding.indicator.setViewPager(this)
+        }
     }
 
     private fun createDownloadingAnimation(): ObjectAnimator {

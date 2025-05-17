@@ -8,12 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.nbarandomizer.callbacks.PlayerDiffCallback
 import com.example.nbarandomizer.databinding.ItemPlayerBinding
+import com.example.nbarandomizer.listeners.IPlayerDetailsListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
-
-interface IPlayerDetailsListener {
-    fun onClick(player: Player)
-}
 
 class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.ViewHolder(binding.root) {
     init {
@@ -52,7 +49,7 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
         }
 
         itemView.setOnLongClickListener {
-            playerDetailsListener.onClick(player)
+            playerDetailsListener.onLongClick(player)
             true
         }
     }

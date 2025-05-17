@@ -10,10 +10,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.nbarandomizer.R
-import com.example.nbarandomizer.adapters.IPlayerCardListener
 import com.example.nbarandomizer.animators.PlayerCardAnimator
 import com.example.nbarandomizer.adapters.TeamAdapter
 import com.example.nbarandomizer.databinding.TeamLayoutBinding
+import com.example.nbarandomizer.listeners.IPlayerCardListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.viewModels.SharedViewModel
 
@@ -28,12 +28,6 @@ class TeamFragment(private val players: MutableList<Player>,
     private lateinit var sharedViewModel: SharedViewModel
 
     private lateinit var adapter: TeamAdapter
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState).apply {
-            setCanceledOnTouchOutside(true)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
