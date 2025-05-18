@@ -1,13 +1,14 @@
 package com.example.nbarandomizer.ui.playerDetails
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.cardview.widget.CardView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerDetailsViewPagerAdapter
@@ -27,11 +28,6 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
 
     private val totalPages = 2
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState).apply {
-            setCanceledOnTouchOutside(true)
-        }
-    }
 
     private fun setupCard(card: CardView) {
         card.cardElevation = 5f
@@ -107,14 +103,23 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
 
     override fun onResume() {
         super.onResume()
+
         dialog?.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
         )
+
+        ViewCompat.setOnApplyWindowInsetsListener(dialog?.window?.decorView!!) { view, windowInsets ->
+            val systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     override fun getTheme(): Int {
-        return R.style.DialogTheme
+        return R.style.FullScreenDialog
     }
 
     override fun onDestroy() {
