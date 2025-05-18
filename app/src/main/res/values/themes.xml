@@ -25,12 +25,15 @@
         <item name="android:layout_gravity">center</item>
     </style>
 
-    <style name="DialogTheme">
+    <style name="FullScreenDialog">
+        <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsFloating">false</item>
     </style>
 
-    <style name="RoundedDialogTheme" parent="DialogTheme">
+    <style name="RoundedDialogTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
         <item name="android:windowBackground">@drawable/rounded_dialog</item>
     </style>
 
