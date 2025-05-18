@@ -33,7 +33,9 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
 
     fun bind(player: Player, playerCardListener: IPlayerCardListener) {
         with(binding) {
-            name.text = player.name
+            itemView.id = player.id
+
+            name.text = player.playerName
             details.text = "${player.position} | ${player.height}cm | ${player.team}"
             overallTextView.text = player.overall.value.toString()
             threePtTextView.text = player.threePointRating.value.toString()

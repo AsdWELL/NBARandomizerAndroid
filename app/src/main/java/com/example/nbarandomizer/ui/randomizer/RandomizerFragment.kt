@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.map
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.databinding.FragmentRandomizerBinding
 import com.example.nbarandomizer.extensions.generateCompleteTeams
@@ -55,7 +56,13 @@ class RandomizerFragment : Fragment() {
         setSeekBarListeners()
         setOnClickListeners()
 
-        sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) { reset() }
+        sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) { newRoster ->
+            if (shuffledPlayers.value!!.size > 0 && newRoster[0].epoch != shuffledPlayers.value!![0].epoch)
+                reset()
+            else
+                shuffledPlayers.value = shuffledPlayers.value!!.map { newRoster[it.id] }.toMutableList()
+        }
+
         shuffledPlayers.observe(viewLifecycleOwner) { binding.remainingPlayersTextView.text = "Осталось игроков ${it.size}" }
 
         return binding.root

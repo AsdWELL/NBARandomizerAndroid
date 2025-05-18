@@ -1,6 +1,7 @@
 package com.example.nbarandomizer.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 enum class Position {
     PG,
@@ -16,7 +17,7 @@ enum class Epoch {
 }
 
 @Serializable
-data class Player(
+data class Player (
     val id: Int,
     var name: String,
     val team: String,
@@ -28,4 +29,18 @@ data class Player(
     val epoch: Epoch,
     val url: String,
     val photoUrl: String
+) {
+    @Transient
+    var nickname: String? = null
+        set(value) {
+            field = value?.ifEmpty { null }
+        }
+
+    val playerName get() = nickname ?: name
+}
+
+@Serializable
+data class PlayerNickname (
+    val playerName: String,
+    var nickname: String
 )

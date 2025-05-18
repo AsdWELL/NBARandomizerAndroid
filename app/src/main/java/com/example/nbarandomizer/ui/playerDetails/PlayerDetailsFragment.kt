@@ -1,6 +1,8 @@
 package com.example.nbarandomizer.ui.playerDetails
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +19,9 @@ import com.example.nbarandomizer.extensions.hide
 import com.example.nbarandomizer.listeners.IPageReadyListener
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
+import com.example.nbarandomizer.viewModels.SharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import java.io.File
 
 class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFragment() {
     private var _binding: PlayerDetailsBinding? = null
@@ -28,6 +32,7 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
 
     private val totalPages = 2
 
+    private lateinit var sharedViewModel: SharedViewModel
 
     private fun setupCard(card: CardView) {
         card.cardElevation = 5f
@@ -41,6 +46,20 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
         card.outlineSpotShadowColor = color
     }
 
+    private fun setNickNameChangeListener() {
+        binding.nickname.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                sharedViewModel.setNickname(playerDetails.name, s.toString().ifEmpty { null })
+
+                onNicknameUpdate?.invoke(playerDetails.name, s.toString())
+            }
+
+            override fun afterTextChanged(s: Editable?) { }
+        })
+    }
+
     private fun setDetails() {
         with(binding) {
             Glide.with(root)
@@ -48,6 +67,7 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
                 .into(photo)
 
             name.text = playerDetails.name
+            nickname.setText(playerDetails.nickname)
             team.text = "Team: ${playerDetails.team}"
             height.text = "Height: ${playerDetails.height}cm"
             position.text = "Position: ${playerDetails.position}"
@@ -84,6 +104,8 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
         }.attach()
     }
 
+    var onNicknameUpdate: ((playerName: String, nickname: String) -> Unit)? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -91,7 +113,10 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
     ): View {
         _binding = PlayerDetailsBinding.inflate(inflater, container, false)
 
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+
         setDetails()
+        setNickNameChangeListener()
 
         return binding.root
     }
@@ -124,6 +149,7 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
 
     override fun onDestroy() {
         _binding = null
+        sharedViewModel.saveNicknames(File(requireActivity().applicationContext.filesDir, sharedViewModel.nicknamesFile))
 
         super.onDestroy()
     }

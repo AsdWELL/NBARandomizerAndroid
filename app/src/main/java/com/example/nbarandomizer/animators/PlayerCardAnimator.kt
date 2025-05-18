@@ -3,6 +3,9 @@ package com.example.nbarandomizer.animators
 import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
+import com.example.nbarandomizer.adapters.TeamViewHolder
+import com.example.nbarandomizer.extensions.hide
+import com.example.nbarandomizer.extensions.show
 
 class PlayerCardAnimator : DefaultItemAnimator() {
     override fun animateChange(
@@ -11,6 +14,18 @@ class PlayerCardAnimator : DefaultItemAnimator() {
         preInfo: ItemHolderInfo,
         postInfo: ItemHolderInfo
     ): Boolean {
+        if (oldHolder.itemView.id == newHolder.itemView.id) {
+            oldHolder.itemView.scaleX = 1f
+            oldHolder.itemView.scaleY = 1f
+            oldHolder.itemView.alpha = 1f
+
+            newHolder.itemView.scaleX = 1f
+            newHolder.itemView.scaleY = 1f
+            newHolder.itemView.alpha = 1f
+
+            return super.animateChange(oldHolder, newHolder, preInfo, postInfo)
+        }
+
         val scale = 2f
         newHolder.itemView.alpha = 0f
 

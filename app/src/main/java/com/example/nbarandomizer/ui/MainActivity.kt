@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.nbarandomizer.App
+import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.MainViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
 import com.example.nbarandomizer.extensions.hide
@@ -21,6 +22,8 @@ import com.example.nbarandomizer.services.PlayersService
 import com.example.nbarandomizer.viewModels.SharedViewModel
 import com.example.nbarandomizer.viewModels.UiState
 import com.google.android.material.tabs.TabLayoutMediator
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -57,6 +60,8 @@ class MainActivity : AppCompatActivity() {
         binding.refreshBtn.setOnClickListener { downloadRoster() }
 
         playersService.notifyProgressBar = { binding.progressBar.progress++ }
+
+        getNicknames()
     }
 
     override fun onResume() {
@@ -66,6 +71,20 @@ class MainActivity : AppCompatActivity() {
 
         if (sharedViewModel.uiState.value is UiState.Idle)
             getRoster()
+    }
+
+    private fun getNicknames() {
+        val file = File(applicationContext.filesDir, sharedViewModel.nicknamesFile)
+
+        if (!file.exists()) {
+            val inputStream = applicationContext.resources.openRawResource(R.raw.nicknames)
+
+            FileOutputStream(file).use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+
+        sharedViewModel.getNicknames(file)
     }
 
     private fun initializeSpinners() {

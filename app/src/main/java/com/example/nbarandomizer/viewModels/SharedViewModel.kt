@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.PlayerDetails
-import com.example.nbarandomizer.models.Rating
+import com.example.nbarandomizer.models.PlayerNickname
 import com.example.nbarandomizer.services.PlayersService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -15,6 +15,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import java.io.File
+import java.io.FileOutputStream
 
 sealed class UiState {
     data object Idle : UiState()
@@ -36,6 +39,8 @@ class SharedViewModel : ViewModel() {
     private val _uiState = MutableLiveData<UiState>(UiState.Idle)
     val uiState: LiveData<UiState> get() = _uiState
 
+    private lateinit var nicknames: MutableList<PlayerNickname>
+
     var epoch = Epoch.Current
 
     var selectedRoster
@@ -45,7 +50,24 @@ class SharedViewModel : ViewModel() {
         }
 
     var playersDetails = mutableListOf<PlayerDetails>()
-        private set
+
+    val nicknamesFile = "nicknames.json"
+
+    private fun applyNickNamesToPlayers(players: MutableList<Player>) {
+        players.forEach { player ->
+            player.nickname = nicknames.find { it.playerName == player.name }?.nickname
+        }
+
+        selectedRoster = players
+    }
+
+    private fun applyNickNamesToDetails(details: MutableList<PlayerDetails>) {
+        details.forEach { detail ->
+            detail.nickname = nicknames.find { it.playerName == detail.name }?.nickname
+        }
+
+        playersDetails = details
+    }
 
     private suspend fun findChanges(oldData: List<Player>, newData: List<Player>): MutableList<Player> {
         return withContext(Dispatchers.IO) {
@@ -106,7 +128,7 @@ class SharedViewModel : ViewModel() {
 
             val updatedPlayers = findChanges(selectedRoster, players)
 
-            selectedRoster = players
+            applyNickNamesToPlayers(players)
 
             _uiState.value = UiState.SuccessRoster
 
@@ -137,7 +159,7 @@ class SharedViewModel : ViewModel() {
                 return@launch
             }
             else {
-                selectedRoster = players
+                applyNickNamesToPlayers(players)
 
                 _uiState.value = UiState.SuccessRoster
             }
@@ -149,7 +171,7 @@ class SharedViewModel : ViewModel() {
                     playersService.getPlayersDetails(selectedRoster, epoch)
                 }
 
-                playersDetails = details
+                applyNickNamesToDetails(details)
 
                 _uiState.value = UiState.SuccessDetails
             }
@@ -162,6 +184,40 @@ class SharedViewModel : ViewModel() {
 
     fun isDownloadingDetails(): Boolean {
         return downloadingDetailsJob?.isActive == true
+    }
+
+    fun setNickname(playerName: String, nickname: String?) {
+        playersDetails.find { it.name == playerName }?.nickname = nickname
+
+        if (nickname == null)
+            nicknames.remove( nicknames.find { it.playerName == playerName } )
+        else {
+            val nick = nicknames.find { it.playerName == playerName }
+
+            if (nick == null)
+                nicknames.add(PlayerNickname(playerName, nickname))
+            else
+                nick.nickname = nickname
+        }
+
+        selectedRoster = selectedRoster.map { item ->
+            if (item.name == playerName)
+                item.copy().apply {
+                    this.nickname = nickname
+                }
+            else
+                item
+        }.toMutableList()
+    }
+
+    fun getNicknames(file: File) = viewModelScope.launch(Dispatchers.IO) {
+        nicknames = Json.decodeFromString<MutableList<PlayerNickname>>(file.readText())
+    }
+
+    fun saveNicknames(file: File) = viewModelScope.launch(Dispatchers.IO) {
+        FileOutputStream(file, false).use {
+            it.write(Json.encodeToString(nicknames).toByteArray())
+        }
     }
 
     override fun onCleared() {

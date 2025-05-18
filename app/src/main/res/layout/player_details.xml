@@ -35,6 +35,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/photo" />
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/nickname"
+            android:hint="Кликуха игрока"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="10dp"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/name" />
+
         <TextView
             android:id="@+id/team"
             android:layout_width="0dp"
@@ -44,7 +58,7 @@
             android:layout_marginTop="10dp"
             app:layout_constraintEnd_toEndOf="@+id/name"
             app:layout_constraintStart_toStartOf="@+id/name"
-            app:layout_constraintTop_toBottomOf="@+id/name" />
+            app:layout_constraintTop_toBottomOf="@+id/nickname" />
         <TextView
             android:id="@+id/height"
             android:layout_width="0dp"

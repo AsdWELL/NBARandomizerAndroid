@@ -1,6 +1,7 @@
 package com.example.nbarandomizer.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class AttributeRatings (
@@ -26,4 +27,10 @@ data class PlayerDetails (
     val photoUrl: String,
     val attributes: List<AttributeRatings>,
     val badges: List<Badge>
-)
+) {
+    @Transient
+    var nickname: String? = null
+        set(value) {
+            field = value?.ifEmpty { null }
+        }
+}

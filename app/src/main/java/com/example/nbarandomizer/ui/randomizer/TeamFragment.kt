@@ -17,10 +17,11 @@ import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
 import com.example.nbarandomizer.viewModels.SharedViewModel
 
-class TeamFragment(private val players: MutableList<Player>,
-                   private val teamsCount: Int,
-                   private val getRandomPlayer: (position: Int) -> Player)
-    : DialogFragment() {
+class TeamFragment(
+    private val players: MutableList<Player>,
+    private val teamsCount: Int,
+    private val getRandomPlayer: (position: Int) -> Player
+) : DialogFragment() {
     private var _binding: TeamLayoutBinding? = null
 
     private val binding get() = _binding!!
@@ -54,6 +55,16 @@ class TeamFragment(private val players: MutableList<Player>,
                 }
 
                 val dialog = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id])
+
+                dialog.onNicknameUpdate = { playerName, nickname ->
+                    adapter.submitList(adapter.currentList.map { item ->
+                        if (item.name == playerName)
+                            item.copy().apply { this.nickname = nickname}
+                        else
+                            item
+                    })
+                }
+
                 dialog.show(requireActivity().supportFragmentManager, "details")
             }
         })
