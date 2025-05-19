@@ -1,8 +1,6 @@
 package com.example.nbarandomizer.ui.playerDetails
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,20 +42,6 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
     private fun setCardColor(card: CardView, color: Int) {
         card.setCardBackgroundColor(color)
         card.outlineSpotShadowColor = color
-    }
-
-    private fun setNickNameChangeListener() {
-        binding.nickname.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                sharedViewModel.setNickname(playerDetails.name, s.toString().ifEmpty { null })
-
-                onNicknameUpdate?.invoke(playerDetails.name, s.toString())
-            }
-
-            override fun afterTextChanged(s: Editable?) { }
-        })
     }
 
     private fun setDetails() {
@@ -104,7 +88,7 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
         }.attach()
     }
 
-    var onNicknameUpdate: ((playerName: String, nickname: String) -> Unit)? = null
+    var onNicknameUpdate: ((playerName: String, nickname: String?) -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -116,7 +100,6 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
         setDetails()
-        setNickNameChangeListener()
 
         return binding.root
     }
@@ -148,8 +131,17 @@ class PlayerDetailsFragment(private val playerDetails: PlayerDetails) : DialogFr
     }
 
     override fun onDestroy() {
+        val nickname = binding.nickname.text.toString().trim().ifEmpty { null }
+
+        if (playerDetails.nickname != nickname) {
+            sharedViewModel.setNickname(playerDetails.name, nickname)
+
+            onNicknameUpdate?.invoke(playerDetails.name, nickname)
+
+            sharedViewModel.saveNicknames(File(requireActivity().applicationContext.filesDir, sharedViewModel.nicknamesFile))
+        }
+
         _binding = null
-        sharedViewModel.saveNicknames(File(requireActivity().applicationContext.filesDir, sharedViewModel.nicknamesFile))
 
         super.onDestroy()
     }

@@ -200,14 +200,20 @@ class SharedViewModel : ViewModel() {
                 nick.nickname = nickname
         }
 
-        selectedRoster = selectedRoster.map { item ->
-            if (item.name == playerName)
-                item.copy().apply {
-                    this.nickname = nickname
-                }
-            else
-                item
-        }.toMutableList()
+        viewModelScope.launch(Dispatchers.IO) {
+            val updatedRoster = selectedRoster.map { item ->
+                if (item.name == playerName)
+                    item.copy().apply {
+                        this.nickname = nickname
+                    }
+                else
+                    item
+            }.toMutableList()
+
+            withContext(Dispatchers.Main) {
+                selectedRoster = updatedRoster
+            }
+        }
     }
 
     fun getNicknames(file: File) = viewModelScope.launch(Dispatchers.IO) {
