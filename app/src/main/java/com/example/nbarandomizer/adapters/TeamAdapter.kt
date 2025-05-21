@@ -34,6 +34,7 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
     fun bind(player: Player, playerCardListener: IPlayerCardListener) {
         with(binding) {
             itemView.id = player.id
+            itemView.transitionName = player.id.toString()
 
             name.text = player.playerName
             details.text = "${player.position} | ${player.height}cm | ${player.team}"
@@ -51,7 +52,7 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
 
             refreshBtn.setOnClickListener { playerCardListener.onClick(adapterPosition) }
             itemView.setOnLongClickListener {
-                playerCardListener.onLongClick(player)
+                playerCardListener.onLongClick(player, it)
                 true
             }
         }

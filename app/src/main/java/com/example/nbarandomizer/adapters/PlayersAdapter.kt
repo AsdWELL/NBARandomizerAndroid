@@ -33,6 +33,8 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
 
     fun bind(player: Player, playerDetailsListener: IPlayerDetailsListener) {
         with(binding) {
+            itemView.transitionName = player.id.toString()
+
             name.text = player.playerName
             details.text = "${player.position} | ${player.height}cm | ${player.team}"
             overallTextView.text = player.overall.value.toString()
@@ -49,7 +51,7 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
         }
 
         itemView.setOnLongClickListener {
-            playerDetailsListener.onLongClick(player)
+            playerDetailsListener.onLongClick(player, it)
             true
         }
     }
