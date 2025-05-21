@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerAdapter
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
 import com.example.nbarandomizer.listeners.IPlayerDetailsListener
@@ -37,14 +38,18 @@ class RosterFragment : Fragment() {
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
         adapter = PlayerAdapter(object : IPlayerDetailsListener {
-            override fun onLongClick(player: Player) {
+            override fun onLongClick(player: Player, playerCard: View) {
                 if (sharedViewModel.isDownloadingDetails()) {
                     toastMessage("Погоди ща скачается")
                     return
                 }
 
-                val dialog = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id])
-                dialog.show(requireActivity().supportFragmentManager, "")
+                val playerDetailsFragment = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id], playerCard)
+                requireActivity().supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.container, playerDetailsFragment, "details")
+                    .addToBackStack("details")
+                    .commit()
             }
         })
 

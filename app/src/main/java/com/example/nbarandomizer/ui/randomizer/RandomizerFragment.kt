@@ -1,7 +1,6 @@
 package com.example.nbarandomizer.ui.randomizer
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.example.nbarandomizer.R
@@ -59,6 +60,13 @@ class RandomizerFragment : Fragment() {
         shuffledPlayers.observe(viewLifecycleOwner) { binding.remainingPlayersTextView.text = "Осталось игроков ${it.size}" }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     private fun setOnClickListeners() {
@@ -165,7 +173,12 @@ class RandomizerFragment : Fragment() {
             player
         }
 
-        teamFragment.show(requireActivity().supportFragmentManager, "team")
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .addSharedElement(binding.randomizeButton, "my_transition")
+            .add(R.id.container, teamFragment, "team")
+            .addToBackStack("team")
+            .commit()
 
         shuffledPlayers.value = players
     }
