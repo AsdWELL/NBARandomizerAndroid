@@ -34,7 +34,6 @@ class PlayerDetailsFragment(
 
     private val totalPages = 2
 
-
     private fun setupCard(card: CardView) {
         card.cardElevation = 5f
         card.preventCornerOverlap = false

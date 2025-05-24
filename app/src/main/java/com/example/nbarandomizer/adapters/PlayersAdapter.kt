@@ -52,7 +52,7 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
         }
 
         itemView.setOnLongClickListener {
-            playerDetailsListener.onLongClick(player, it)
+            playerDetailsListener.onPlayerCardLongClick(player, it)
             true
         }
     }

@@ -25,7 +25,7 @@ class TeamFragment(
     private val players: MutableList<Player>,
     private val teamsCount: Int,
     private val getRandomPlayer: (position: Int) -> Player
-) : Fragment() {
+) : Fragment(), IPlayerCardListener {
     private var _binding: TeamLayoutBinding? = null
 
     private val binding get() = _binding!!
@@ -33,6 +33,29 @@ class TeamFragment(
     private lateinit var sharedViewModel: SharedViewModel
 
     private lateinit var adapter: TeamAdapter
+
+    override fun onPlayerCardClick(position: Int) {
+        val newData = adapter.currentList.toMutableList().apply {
+            this[position] = getRandomPlayer(position)
+        }
+
+        adapter.submitList(newData)
+    }
+
+    override fun onPlayerCardLongClick(player: Player, playerCard: View) {
+        if (sharedViewModel.isDownloadingDetails()) {
+            Toast.makeText(context, "Погоди ща скачается", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val playerDetailsFragment = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id], playerCard)
+
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .add(R.id.container, playerDetailsFragment, "details")
+            .addToBackStack("details")
+            .commit()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,30 +70,7 @@ class TeamFragment(
 
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
-        adapter = TeamAdapter(object : IPlayerCardListener {
-            override fun onClick(position: Int) {
-                val newData = adapter.currentList.toMutableList().apply {
-                    this[position] = getRandomPlayer(position)
-                }
-
-                adapter.submitList(newData)
-            }
-
-            override fun onLongClick(player: Player, playerCard: View) {
-                if (sharedViewModel.isDownloadingDetails()) {
-                    Toast.makeText(context, "Погоди ща скачается", Toast.LENGTH_SHORT).show()
-                    return
-                }
-
-                val playerDetailsFragment = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id], playerCard)
-
-                requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .add(R.id.container, playerDetailsFragment, "details")
-                    .addToBackStack("details")
-                    .commit()
-            }
-        })
+        adapter = TeamAdapter(this)
 
         binding.recyclerView.itemAnimator = PlayerCardAnimator()
         binding.recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
