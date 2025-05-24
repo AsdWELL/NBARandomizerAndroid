@@ -48,6 +48,7 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
 
             Glide.with(binding.root)
                 .load(player.photoUrl)
+                .circleCrop()
                 .into(photo)
 
             refreshBtn.setOnClickListener { playerCardListener.onClick(adapterPosition) }

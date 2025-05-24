@@ -47,6 +47,7 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
 
             Glide.with(binding.root)
                 .load(player.photoUrl)
+                .circleCrop()
                 .into(photo)
         }
 

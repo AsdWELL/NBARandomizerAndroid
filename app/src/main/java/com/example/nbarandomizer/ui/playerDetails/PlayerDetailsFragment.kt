@@ -1,28 +1,26 @@
 package com.example.nbarandomizer.ui.playerDetails
 
-import android.graphics.Color
 import android.os.Bundle
+import android.transition.TransitionSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.cardview.widget.CardView
-import androidx.core.transition.addListener
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.transition.Fade
-import androidx.transition.Slide
-import androidx.transition.TransitionSet
 import com.bumptech.glide.Glide
+import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerDetailsViewPagerAdapter
 import com.example.nbarandomizer.databinding.PlayerDetailsBinding
+import com.example.nbarandomizer.extensions.createEnterTransformation
+import com.example.nbarandomizer.extensions.createReturnTransformation
 import com.example.nbarandomizer.extensions.hide
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.listeners.IPageReadyListener
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.android.material.transition.platform.MaterialContainerTransform
-import java.io.File
 
 class PlayerDetailsFragment(
     private val playerDetails: PlayerDetails,
@@ -53,6 +51,7 @@ class PlayerDetailsFragment(
         with(binding) {
             Glide.with(root)
                 .load(playerDetails.photoUrl)
+                .circleCrop()
                 .into(photo)
 
             name.text = playerDetails.name
@@ -99,6 +98,8 @@ class PlayerDetailsFragment(
     ): View {
         _binding = PlayerDetailsBinding.inflate(inflater, container, false)
 
+        postponeEnterTransition()
+
         setDetails()
 
         return binding.root
@@ -109,19 +110,22 @@ class PlayerDetailsFragment(
 
         binding.root.transitionName = playerCard.transitionName
 
-        enterTransition = MaterialContainerTransform().apply {
-            startView = playerCard
-            endView = binding.root
-            duration = 350
-            scrimColor = Color.TRANSPARENT
-            addListener({_ -> binding.viewPager.show()})
+        view.doOnPreDraw {
+            startPostponedEnterTransition()
+        }
+
+        enterTransition = TransitionSet().apply {
+            ordering = TransitionSet.ORDERING_TOGETHER
+            addTransition(createEnterTransformation(playerCard, binding.root) {
+                _binding?.viewPager?.show()
+            })
+            addTransition(createEnterTransformation(playerCard.findViewById(R.id.photo_container), binding.photoContainer))
         }
 
         returnTransition = TransitionSet().apply {
-            addTransition(Fade().apply { addTarget(binding.root) })
-            addTransition(Slide().apply { addTarget(binding.root) })
             ordering = TransitionSet.ORDERING_TOGETHER
-            duration = 350
+            addTransition(createReturnTransformation(binding.root, playerCard))
+            addTransition(createReturnTransformation(binding.photoContainer, playerCard.findViewById(R.id.photo_container)))
         }
     }
 

@@ -175,7 +175,6 @@ class RandomizerFragment : Fragment() {
 
         requireActivity().supportFragmentManager
             .beginTransaction()
-            .addSharedElement(binding.randomizeButton, "my_transition")
             .add(R.id.container, teamFragment, "team")
             .addToBackStack("team")
             .commit()
