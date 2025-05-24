@@ -16,7 +16,7 @@ import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
 import com.example.nbarandomizer.viewModels.SharedViewModel
 
-class RosterFragment : Fragment() {
+class RosterFragment : Fragment(), IPlayerDetailsListener {
     private var _binding: FragmentRosterBinding? = null
 
     private val binding get() = _binding!!
@@ -29,6 +29,20 @@ class RosterFragment : Fragment() {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
+    override fun onPlayerCardLongClick(player: Player, playerCard: View) {
+        if (sharedViewModel.isDownloadingDetails()) {
+            toastMessage("Погоди ща скачается")
+            return
+        }
+
+        val playerDetailsFragment = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id], playerCard)
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .add(R.id.container, playerDetailsFragment, "details")
+            .addToBackStack("details")
+            .commit()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,21 +51,7 @@ class RosterFragment : Fragment() {
 
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
-        adapter = PlayerAdapter(object : IPlayerDetailsListener {
-            override fun onLongClick(player: Player, playerCard: View) {
-                if (sharedViewModel.isDownloadingDetails()) {
-                    toastMessage("Погоди ща скачается")
-                    return
-                }
-
-                val playerDetailsFragment = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id], playerCard)
-                requireActivity().supportFragmentManager
-                    .beginTransaction()
-                    .add(R.id.container, playerDetailsFragment, "details")
-                    .addToBackStack("details")
-                    .commit()
-            }
-        })
+        adapter = PlayerAdapter(this)
 
         bindRoster()
 

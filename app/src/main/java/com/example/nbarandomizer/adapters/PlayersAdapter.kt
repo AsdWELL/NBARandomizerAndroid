@@ -47,11 +47,12 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
 
             Glide.with(binding.root)
                 .load(player.photoUrl)
+                .circleCrop()
                 .into(photo)
         }
 
         itemView.setOnLongClickListener {
-            playerDetailsListener.onLongClick(player, it)
+            playerDetailsListener.onPlayerCardLongClick(player, it)
             true
         }
     }
