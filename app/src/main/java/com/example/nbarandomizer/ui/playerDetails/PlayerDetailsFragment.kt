@@ -15,7 +15,7 @@ import com.example.nbarandomizer.adapters.PlayerDetailsViewPagerAdapter
 import com.example.nbarandomizer.databinding.PlayerDetailsBinding
 import com.example.nbarandomizer.extensions.createEnterTransformation
 import com.example.nbarandomizer.extensions.createReturnTransformation
-import com.example.nbarandomizer.extensions.hide
+import com.example.nbarandomizer.extensions.gone
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.listeners.IPageReadyListener
 import com.example.nbarandomizer.models.PlayerDetails
@@ -82,7 +82,7 @@ class PlayerDetailsFragment(
                         loadedPages++
 
                         if (loadedPages == totalPages)
-                            binding.progressBar.hide()
+                            binding.progressBar.gone()
                     }
                 })
         }

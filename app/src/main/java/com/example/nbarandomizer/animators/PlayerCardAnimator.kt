@@ -3,9 +3,6 @@ package com.example.nbarandomizer.animators
 import android.view.animation.OvershootInterpolator
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nbarandomizer.adapters.TeamViewHolder
-import com.example.nbarandomizer.extensions.hide
-import com.example.nbarandomizer.extensions.show
 
 class PlayerCardAnimator : DefaultItemAnimator() {
     override fun animateChange(

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nbarandomizer.models.Epoch
+import com.example.nbarandomizer.models.FilterSettings
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.models.PlayerNickname
@@ -43,7 +44,16 @@ class SharedViewModel : ViewModel() {
 
     var epoch = Epoch.Current
 
-    var selectedRoster
+    private val _filterSettingsBinding = MutableLiveData(FilterSettings())
+    val filterSettingsBinding: LiveData<FilterSettings> get() = _filterSettingsBinding
+
+    var filterSettings
+        get() = _filterSettingsBinding.value!!
+        set(value) {
+            _filterSettingsBinding.value = value
+        }
+
+    var selectedRoster: MutableList<Player>
         get() = _selectedRosterBinding.value!!
         private set(value) {
             _selectedRosterBinding.value = value
@@ -145,6 +155,8 @@ class SharedViewModel : ViewModel() {
 
         if (selectedRoster.isNotEmpty() && selectedRoster[0].epoch == epoch)
             return
+
+        filterSettings = FilterSettings()
 
         downloadingJob = viewModelScope.launch {
              _uiState.value = UiState.LoadingRoster
