@@ -15,6 +15,7 @@ import com.example.nbarandomizer.adapters.TeamAdapter
 import com.example.nbarandomizer.databinding.TeamLayoutBinding
 import com.example.nbarandomizer.extensions.createEnterTransformation
 import com.example.nbarandomizer.extensions.createReturnTransformation
+import com.example.nbarandomizer.extensions.hide
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.listeners.IPlayerCardListener
 import com.example.nbarandomizer.models.Player
@@ -91,7 +92,7 @@ class TeamFragment(
         val randomizeButton = requireActivity().findViewById<View>(R.id.randomizeButton)
 
         enterTransition = createEnterTransformation(randomizeButton, binding.teamContainer) {
-            randomizeButton.visibility = View.INVISIBLE
+            randomizeButton.hide()
         }
 
         returnTransition = createReturnTransformation(binding.teamContainer, randomizeButton) {

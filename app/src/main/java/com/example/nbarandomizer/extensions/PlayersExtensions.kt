@@ -1,9 +1,10 @@
 package com.example.nbarandomizer.extensions
 
 import com.example.nbarandomizer.exceptions.*
+import com.example.nbarandomizer.models.FilterSettings
+import com.example.nbarandomizer.models.FilterSettings.Companion.FILTER_NONE_VALUE
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.Position
-import kotlin.math.roundToInt
 
 /**
  * Возвращает новый список с элементами коллекции в случайном порядке
@@ -73,4 +74,11 @@ fun MutableList<Player>.generateCompleteTeams(positions: List<Position>, teamsCo
     }
 
     return players
+}
+
+fun MutableList<Player>.applyFilterSettings(filterSettings: FilterSettings): List<Player> {
+    return filter { it.name.contains(filterSettings.name, true)
+            && (filterSettings.team == FILTER_NONE_VALUE || it.team.contains(filterSettings.team, true))
+            && (filterSettings.position == FILTER_NONE_VALUE || it.position.contains(filterSettings.position, true))
+    }
 }

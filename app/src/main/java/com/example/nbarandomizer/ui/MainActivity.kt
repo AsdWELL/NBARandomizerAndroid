@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.nbarandomizer.App
 import com.example.nbarandomizer.adapters.MainViewPagerAdapter
 import com.example.nbarandomizer.databinding.ActivityMainBinding
-import com.example.nbarandomizer.extensions.hide
+import com.example.nbarandomizer.extensions.gone
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.services.PlayersService
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 is UiState.SuccessRoster -> {
-                    binding.statusTextView.hide()
+                    binding.statusTextView.gone()
 
                     downloadingAnimator.end()
                 }
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
                     downloadingAnimator.end()
 
                     binding.progressBar.hide()
-                    binding.statusTextView.hide()
+                    binding.statusTextView.gone()
                 }
 
                 is UiState.Error -> {

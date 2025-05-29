@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerAdapter
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
+import com.example.nbarandomizer.extensions.applyFilterSettings
 import com.example.nbarandomizer.listeners.IPlayerDetailsListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
@@ -36,6 +37,7 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
         }
 
         val playerDetailsFragment = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id], playerCard)
+
         requireActivity().supportFragmentManager
             .beginTransaction()
             .add(R.id.container, playerDetailsFragment, "details")
@@ -58,11 +60,42 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.recyclerView.adapter = adapter
 
+        binding.searchButton.setOnClickListener {
+            if (sharedViewModel.isDownloadingRoster()) {
+                toastMessage("Погоди ща скачается")
+
+                return@setOnClickListener
+            }
+
+            requireActivity().supportFragmentManager
+               .beginTransaction()
+               .add(R.id.container, FilterFragment(), "filter")
+               .addToBackStack("filter")
+               .commit()
+        }
+
         return binding.root
     }
 
+    private fun showPlayersCount(count: Int) {
+        binding.playersCountTextView.text = "Показано ${count} из 100 игроков"
+    }
+
+    private fun setFilteredRoster() {
+        val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettings(sharedViewModel.filterSettings)
+
+        adapter.submitList(filteredPlayers)
+        showPlayersCount(filteredPlayers.size)
+    }
+
     private fun bindRoster() {
-        sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) { adapter.submitList(it) }
+        sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) {
+            setFilteredRoster()
+        }
+
+        sharedViewModel.filterSettingsBinding.observe(viewLifecycleOwner) {
+            setFilteredRoster()
+        }
     }
 
     override fun onDestroy() {
