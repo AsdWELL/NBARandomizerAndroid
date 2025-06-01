@@ -52,6 +52,7 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
                 .into(photo)
 
             refreshBtn.setOnClickListener { playerCardListener.onPlayerCardClick(adapterPosition) }
+
             itemView.setOnLongClickListener {
                 playerCardListener.onPlayerCardLongClick(player, it)
                 true

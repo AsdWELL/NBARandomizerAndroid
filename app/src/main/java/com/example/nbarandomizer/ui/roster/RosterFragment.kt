@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerAdapter
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
@@ -16,6 +18,9 @@ import com.example.nbarandomizer.listeners.IPlayerDetailsListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
 import com.example.nbarandomizer.viewModels.SharedViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RosterFragment : Fragment(), IPlayerDetailsListener {
     private var _binding: FragmentRosterBinding? = null
@@ -78,14 +83,18 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
     }
 
     private fun showPlayersCount(count: Int) {
-        binding.playersCountTextView.text = "Показано ${count} из 100 игроков"
+        binding.playersCountTextView.text = "Показано $count из 100 игроков"
     }
 
     private fun setFilteredRoster() {
-        val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettings(sharedViewModel.filterSettings)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettings(sharedViewModel.filterSettings)
+            adapter.submitList(filteredPlayers) { binding.recyclerView.scrollToPosition(0) }
 
-        adapter.submitList(filteredPlayers)
-        showPlayersCount(filteredPlayers.size)
+            withContext(Dispatchers.Main) {
+                showPlayersCount(filteredPlayers.size)
+            }
+        }
     }
 
     private fun bindRoster() {

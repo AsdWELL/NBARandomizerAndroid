@@ -13,6 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageView
+            android:id="@+id/backBtn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="?attr/homeAsUpIndicator"
+            app:layout_constraintStart_toStartOf="@+id/name"
+            app:layout_constraintTop_toTopOf="@+id/photo_container" />
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/photo_container"
             android:layout_marginTop="15dp"

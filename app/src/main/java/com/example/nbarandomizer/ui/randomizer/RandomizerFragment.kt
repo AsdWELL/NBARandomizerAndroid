@@ -7,8 +7,6 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -44,6 +42,8 @@ class RandomizerFragment : Fragment() {
     ): View {
         _binding = FragmentRandomizerBinding.inflate(inflater, container, false)
 
+        postponeEnterTransition()
+
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
         initializePositionsChips()
@@ -59,7 +59,6 @@ class RandomizerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        postponeEnterTransition()
         view.doOnPreDraw { startPostponedEnterTransition() }
     }
 
