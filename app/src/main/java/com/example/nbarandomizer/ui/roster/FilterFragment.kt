@@ -50,19 +50,7 @@ class FilterFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentFilterBinding.inflate(inflater, container, false)
-
-        postponeEnterTransition()
-
-        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
-
-        binding.root.setOnClickListener {}
-
+    private fun setOnClickListeners() {
         binding.resetBtn.setOnClickListener {
             with(binding) {
                 filterNameView.text.clear()
@@ -79,7 +67,23 @@ class FilterFragment : Fragment() {
             sharedViewModel.filterSettings =
                 sharedViewModel.filterSettings.copy(name = name, team = team, position = position)
         }
+    }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFilterBinding.inflate(inflater, container, false)
+
+        postponeEnterTransition()
+
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+
+        binding.root.setOnClickListener {}
+
+        setOnClickListeners()
+        
         initializeFilters()
 
         return binding.root

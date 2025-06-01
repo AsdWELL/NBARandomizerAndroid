@@ -17,8 +17,8 @@
         android:transitionName="filter_transition">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_marginVertical="10dp"
-            android:layout_marginHorizontal="30dp"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="30dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -118,6 +118,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/resetBtnText"
+                android:stateListAnimator="@animator/button_animation"
                 android:textSize="20sp"
                 android:textStyle="italic"
                 android:layout_marginTop="15dp"
@@ -130,6 +131,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/saveFiltersBtnText"
+                android:stateListAnimator="@animator/button_animation"
                 android:textSize="20sp"
                 android:textStyle="italic"
                 android:layout_marginTop="5dp"

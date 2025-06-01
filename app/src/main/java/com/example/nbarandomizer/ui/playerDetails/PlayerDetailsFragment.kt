@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerDetailsViewPagerAdapter
-import com.example.nbarandomizer.databinding.PlayerDetailsBinding
+import com.example.nbarandomizer.databinding.FragmentPlayerDetailsBinding
 import com.example.nbarandomizer.extensions.createEnterTransformation
 import com.example.nbarandomizer.extensions.createReturnTransformation
 import com.example.nbarandomizer.extensions.gone
@@ -28,7 +28,7 @@ class PlayerDetailsFragment(
     private val playerDetails: PlayerDetails,
     private val playerCard: View
 ) : Fragment() {
-    private var _binding: PlayerDetailsBinding? = null
+    private var _binding: FragmentPlayerDetailsBinding? = null
 
     private val binding get() = _binding!!
 
@@ -102,13 +102,15 @@ class PlayerDetailsFragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = PlayerDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentPlayerDetailsBinding.inflate(inflater, container, false)
 
         postponeEnterTransition()
 
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
         setDetails()
+
+        binding.backBtn.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
 
         return binding.root
     }
