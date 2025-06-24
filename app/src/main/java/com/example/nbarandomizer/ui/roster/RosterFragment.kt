@@ -18,6 +18,7 @@ import com.example.nbarandomizer.listeners.IPlayerDetailsListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
 import com.example.nbarandomizer.viewModels.SharedViewModel
+import com.example.nbarandomizer.viewModels.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,10 +87,16 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
         binding.playersCountTextView.text = "Показано $count из 100 игроков"
     }
 
-    private fun setFilteredRoster() {
+    private fun setFilteredRoster(scrollToTop: Boolean) {
         lifecycleScope.launch(Dispatchers.IO) {
+            if (sharedViewModel.uiState.value is UiState.LoadingRoster)
+                return@launch
+
             val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettings(sharedViewModel.filterSettings)
-            adapter.submitList(filteredPlayers) { binding.recyclerView.scrollToPosition(0) }
+            adapter.submitList(filteredPlayers) {
+                if (scrollToTop)
+                    binding.recyclerView.scrollToPosition(0)
+            }
 
             withContext(Dispatchers.Main) {
                 showPlayersCount(filteredPlayers.size)
@@ -99,11 +106,11 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
 
     private fun bindRoster() {
         sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) {
-            setFilteredRoster()
+            setFilteredRoster(false)
         }
 
         sharedViewModel.filterSettingsBinding.observe(viewLifecycleOwner) {
-            setFilteredRoster()
+            setFilteredRoster(true)
         }
     }
 

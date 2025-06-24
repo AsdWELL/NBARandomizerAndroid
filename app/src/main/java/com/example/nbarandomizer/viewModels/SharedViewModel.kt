@@ -63,7 +63,7 @@ class SharedViewModel : ViewModel() {
 
     val nicknamesFile = "nicknames.json"
 
-    private fun applyNickNamesToPlayers(players: MutableList<Player>) {
+    private fun applyNickNamesToPlayersAndSetRoster(players: MutableList<Player>) {
         players.forEach { player ->
             player.nickname = nicknames.find { it.playerName == player.name }?.nickname
         }
@@ -75,6 +75,10 @@ class SharedViewModel : ViewModel() {
         details.forEach { detail ->
             detail.nickname = nicknames.find { it.playerName == detail.name }?.nickname
         }
+    }
+
+    private fun applyNickNamesToDetailsAndSetDetails(details: MutableList<PlayerDetails>) {
+        applyNickNamesToDetails(details)
 
         playersDetails = details
     }
@@ -95,7 +99,9 @@ class SharedViewModel : ViewModel() {
         withContext(Dispatchers.IO) {
             val newDetails = updatedPlayers.map {
                 viewModelScope.async(Dispatchers.IO) { playersService.downloadPlayerDetails(it) }
-            }.awaitAll()
+            }.awaitAll().toMutableList()
+
+            applyNickNamesToDetails(newDetails)
 
             newDetails.forEach {
                 playersDetails[it.id] = it
@@ -138,15 +144,16 @@ class SharedViewModel : ViewModel() {
 
             val updatedPlayers = findChanges(selectedRoster, players)
 
-            applyNickNamesToPlayers(players)
-
-            _uiState.value = UiState.SuccessRoster
-
-            if (updatedPlayers.size > 0) {
-                _uiState.value = UiState.LoadingDetails
-
-                updatePlayersDetails(playersService, updatedPlayers, epoch)
+            if (updatedPlayers.size == 0) {
+                _uiState.value = UiState.SuccessRoster
+                return@launch
             }
+
+            applyNickNamesToPlayersAndSetRoster(players)
+
+            _uiState.value = UiState.LoadingDetails
+
+            updatePlayersDetails(playersService, updatedPlayers, epoch)
         }
     }
 
@@ -171,7 +178,7 @@ class SharedViewModel : ViewModel() {
                 return@launch
             }
             else {
-                applyNickNamesToPlayers(players)
+                applyNickNamesToPlayersAndSetRoster(players)
 
                 _uiState.value = UiState.SuccessRoster
             }
@@ -183,7 +190,7 @@ class SharedViewModel : ViewModel() {
                     playersService.getPlayersDetails(selectedRoster, epoch)
                 }
 
-                applyNickNamesToDetails(details)
+                applyNickNamesToDetailsAndSetDetails(details)
 
                 _uiState.value = UiState.SuccessDetails
             }
