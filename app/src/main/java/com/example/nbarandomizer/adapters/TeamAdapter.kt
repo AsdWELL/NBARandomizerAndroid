@@ -6,6 +6,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.example.nbarandomizer.callbacks.PlayerDiffCallback
 import com.example.nbarandomizer.databinding.PlayerCardBinding
 import com.example.nbarandomizer.listeners.IPlayerCardListener
@@ -18,6 +19,8 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
         setupCard(binding.threePtCardView)
         setupCard(binding.dunkCardView)
     }
+
+    var isAnimating = false
 
     private fun setupCard(card: CardView) {
         card.cardElevation = 5f
@@ -48,10 +51,16 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
 
             Glide.with(binding.root)
                 .load(player.photoUrl)
+                .signature(ObjectKey("${player.id}_${player.team}"))
                 .circleCrop()
                 .into(photo)
 
-            refreshBtn.setOnClickListener { playerCardListener.onPlayerCardClick(adapterPosition) }
+            refreshBtn.setOnClickListener {
+                if (isAnimating)
+                    return@setOnClickListener
+
+                playerCardListener.onPlayerCardClick(adapterPosition)
+            }
 
             itemView.setOnLongClickListener {
                 playerCardListener.onPlayerCardLongClick(player, it)

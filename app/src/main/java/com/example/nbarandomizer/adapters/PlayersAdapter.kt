@@ -6,6 +6,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.example.nbarandomizer.callbacks.PlayerDiffCallback
 import com.example.nbarandomizer.databinding.ItemPlayerBinding
 import com.example.nbarandomizer.listeners.IPlayerDetailsListener
@@ -47,6 +48,7 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
 
             Glide.with(binding.root)
                 .load(player.photoUrl)
+                .signature(ObjectKey("${player.id}_${player.team}"))
                 .circleCrop()
                 .into(photo)
         }

@@ -10,6 +10,7 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerDetailsViewPagerAdapter
 import com.example.nbarandomizer.databinding.FragmentPlayerDetailsBinding
@@ -50,6 +51,7 @@ class PlayerDetailsFragment(
         with(binding) {
             Glide.with(root)
                 .load(playerDetails.photoUrl)
+                .signature(ObjectKey("${playerDetails.id}_${playerDetails.team}"))
                 .circleCrop()
                 .into(photo)
 
