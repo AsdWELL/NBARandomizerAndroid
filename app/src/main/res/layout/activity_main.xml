@@ -47,7 +47,7 @@
     <ImageView
         android:id="@+id/refreshBtn"
         app:tint="?attr/colorPrimary"
-        android:tooltipText="Обновить состав"
+        android:tooltipText="Проверить обновления"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
