@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerAdapter
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
@@ -63,7 +62,9 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
 
         bindRoster()
 
+        binding.recyclerView.setItemViewCacheSize(100)
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
         binding.searchButton.setOnClickListener {
