@@ -9,7 +9,7 @@ class PlayerDiffCallback : DiffUtil.ItemCallback<Player>() {
     }
 
     override fun areContentsTheSame(oldItem: Player, newItem: Player): Boolean {
-        return oldItem == newItem && oldItem.nickname == newItem.nickname
+        return oldItem == newItem
     }
 }
 

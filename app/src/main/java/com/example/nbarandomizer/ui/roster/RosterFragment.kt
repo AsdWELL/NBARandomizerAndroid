@@ -90,9 +90,9 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
     private fun setFilteredRoster() {
         lifecycleScope.launch(Dispatchers.IO) {
             val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettings(sharedViewModel.filterSettings)
-            adapter.submitList(filteredPlayers) { binding.recyclerView.scrollToPosition(0) }
 
             withContext(Dispatchers.Main) {
+                adapter.submitList(filteredPlayers) { binding.recyclerView.scrollToPosition(0) }
                 showPlayersCount(filteredPlayers.size)
             }
         }

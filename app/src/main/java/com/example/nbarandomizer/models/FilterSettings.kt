@@ -22,7 +22,7 @@ data class FilterSettings (
 
     fun getComparator(): Comparator<Player> {
         val comparator: Comparator<Player> = when(sorting) {
-            SortingAttrs.Name.title -> compareBy { it.playerName }
+            SortingAttrs.Name.title -> compareBy { it.name }
             SortingAttrs.Team.title -> compareBy { it.team }
             SortingAttrs.ThreePoint.title -> compareBy { it.threePointRating.value }
             SortingAttrs.Dunk.title -> compareBy { it.dunkRating.value }
