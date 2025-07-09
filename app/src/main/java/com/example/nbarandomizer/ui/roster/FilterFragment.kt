@@ -17,6 +17,7 @@ import com.example.nbarandomizer.extensions.hide
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.models.FilterSettings
 import com.example.nbarandomizer.models.Position
+import com.example.nbarandomizer.models.SortingAttrs
 import com.example.nbarandomizer.viewModels.SharedViewModel
 
 class FilterFragment : Fragment() {
@@ -26,10 +27,13 @@ class FilterFragment : Fragment() {
 
     private lateinit var sharedViewModel: SharedViewModel
 
-    private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>) {
+    private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>, addNoneValue: Boolean = true) {
         val adapter = ArrayAdapter(requireContext(),
             com.google.android.material.R.layout.support_simple_spinner_dropdown_item,
-            listOf(FilterSettings.FILTER_NONE_VALUE) + values)
+            if (addNoneValue)
+                listOf(FilterSettings.FILTER_NONE_VALUE) + values
+            else
+                values)
 
         textView.setAdapter(adapter)
     }
@@ -48,6 +52,11 @@ class FilterFragment : Fragment() {
             initializeSpinner(this, sharedViewModel.selectedRoster.map { it.team }.distinct().sorted())
             setText(sharedViewModel.filterSettings.team, false)
         }
+
+        with(binding.sortingView) {
+            initializeSpinner(this, SortingAttrs.entries.map { it.title }, false)
+            setText(sharedViewModel.filterSettings.sorting, false)
+        }
     }
 
     private fun setOnClickListeners() {
@@ -56,6 +65,7 @@ class FilterFragment : Fragment() {
                 filterNameView.text.clear()
                 filterPositionView.setText(FilterSettings.FILTER_NONE_VALUE, false)
                 filterTeamView.setText(FilterSettings.FILTER_NONE_VALUE, false)
+                sortingView.setText(SortingAttrs.Overall.title, false)
             }
         }
 
@@ -63,9 +73,10 @@ class FilterFragment : Fragment() {
             val name = binding.filterNameView.text.toString().trim()
             val team = binding.filterTeamView.text.toString()
             val position = binding.filterPositionView.text.toString()
+            val sorting = binding.sortingView.text.toString()
 
             sharedViewModel.filterSettings =
-                sharedViewModel.filterSettings.copy(name = name, team = team, position = position)
+                sharedViewModel.filterSettings.copy(name = name, team = team, position = position, sorting = sorting)
         }
     }
 

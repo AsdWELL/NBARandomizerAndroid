@@ -5,6 +5,7 @@ import com.example.nbarandomizer.models.FilterSettings
 import com.example.nbarandomizer.models.FilterSettings.Companion.FILTER_NONE_VALUE
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.Position
+import com.example.nbarandomizer.models.SortingAttrs
 
 /**
  * Возвращает новый список с элементами коллекции в случайном порядке
@@ -81,5 +82,5 @@ fun MutableList<Player>.applyFilterSettings(filterSettings: FilterSettings): Lis
             || it.nickname?.contains(filterSettings.name, true) == true)
             && (filterSettings.team == FILTER_NONE_VALUE || it.team.contains(filterSettings.team, true))
             && (filterSettings.position == FILTER_NONE_VALUE || it.position.contains(filterSettings.position, true))
-    }
+    }.sortedWith(filterSettings.getComparator())
 }
