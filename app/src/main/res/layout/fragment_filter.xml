@@ -18,7 +18,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:paddingVertical="10dp"
-            android:paddingHorizontal="30dp"
+            android:paddingHorizontal="25dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -68,7 +68,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayout1"
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="120dp"
+                android:layout_width="130dp"
                 android:layout_marginTop="15dp"
                 android:layout_height="wrap_content"
                 app:hintEnabled="false"
@@ -113,6 +113,36 @@
                     android:layout_height="match_parent" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:id="@+id/sorting_label"
+                android:text="Sorting"
+                android:textSize="20sp"
+                android:textStyle="bold|italic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/textInputLayout3"
+                app:layout_constraintBottom_toBottomOf="@+id/textInputLayout3"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout3"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_marginTop="15dp"
+                android:layout_height="wrap_content"
+                app:hintEnabled="false"
+                app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout2">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/sorting_view"
+                    android:padding="0dp"
+                    android:inputType="none"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/resetBtn"
                 android:layout_width="0dp"
@@ -124,7 +154,7 @@
                 android:layout_marginTop="15dp"
                 app:layout_constraintStart_toStartOf="@+id/saveFiltersBtn"
                 app:layout_constraintEnd_toEndOf="@+id/saveFiltersBtn"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"/>
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveFiltersBtn"
