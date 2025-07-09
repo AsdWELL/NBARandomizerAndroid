@@ -8,4 +8,9 @@
     <string name="twoTeamsText">Две команды</string>
     <string name="overallText">Overall</string>
     <string name="saveFiltersBtnText">Сохранить</string>
+    <string name="name_label">Имя</string>
+    <string name="search_label">Поиск</string>
+    <string name="team_label">Команда</string>
+    <string name="position_label">Позиция</string>
+    <string name="sorting_label">Сортировка</string>
 </resources>

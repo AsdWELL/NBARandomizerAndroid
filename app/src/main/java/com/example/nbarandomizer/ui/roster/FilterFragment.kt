@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.view.doOnPreDraw
@@ -25,7 +26,24 @@ class FilterFragment : Fragment() {
 
     private val binding get() = _binding!!
 
+    private var _sortAscending = false
+
     private lateinit var sharedViewModel: SharedViewModel
+
+    private fun animateAndChangeSortDirection() {
+        _sortAscending = !_sortAscending
+
+        with(binding.sortDirectionView) {
+            isClickable = false
+
+            animate()
+                .rotationBy(180f)
+                .setDuration(300)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .withEndAction { isClickable = true }
+                .start()
+        }
+    }
 
     private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>, addNoneValue: Boolean = true) {
         val adapter = ArrayAdapter(requireContext(),
@@ -57,15 +75,31 @@ class FilterFragment : Fragment() {
             initializeSpinner(this, SortingAttrs.entries.map { it.title }, false)
             setText(sharedViewModel.filterSettings.sorting, false)
         }
+
+        with(binding.sortDirectionView) {
+            if (sharedViewModel.filterSettings.sortAscending)
+                this.rotation = 90f
+            else
+                this.rotation = -90f
+
+            _sortAscending = sharedViewModel.filterSettings.sortAscending
+        }
     }
 
     private fun setOnClickListeners() {
+        binding.sortDirectionView.setOnClickListener {
+            animateAndChangeSortDirection()
+        }
+
         binding.resetBtn.setOnClickListener {
             with(binding) {
-                filterNameView.text.clear()
+                filterNameView.text?.clear()
                 filterPositionView.setText(FilterSettings.FILTER_NONE_VALUE, false)
                 filterTeamView.setText(FilterSettings.FILTER_NONE_VALUE, false)
                 sortingView.setText(SortingAttrs.Overall.title, false)
+
+                if (_sortAscending)
+                    animateAndChangeSortDirection()
             }
         }
 
@@ -76,7 +110,7 @@ class FilterFragment : Fragment() {
             val sorting = binding.sortingView.text.toString()
 
             sharedViewModel.filterSettings =
-                sharedViewModel.filterSettings.copy(name = name, team = team, position = position, sorting = sorting)
+                sharedViewModel.filterSettings.copy(name = name, team = team, position = position, sorting = sorting, sortAscending = _sortAscending)
         }
     }
 

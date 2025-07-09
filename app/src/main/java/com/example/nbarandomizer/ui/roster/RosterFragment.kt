@@ -94,12 +94,13 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
                 return@launch
 
             val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettings(sharedViewModel.filterSettings)
-            adapter.submitList(filteredPlayers) {
-                if (scrollToTop)
-                    binding.recyclerView.scrollToPosition(0)
-            }
 
             withContext(Dispatchers.Main) {
+                adapter.submitList(filteredPlayers) {
+                    if (scrollToTop)
+                        binding.recyclerView.scrollToPosition(0)
+                }
+
                 showPlayersCount(filteredPlayers.size)
             }
         }
