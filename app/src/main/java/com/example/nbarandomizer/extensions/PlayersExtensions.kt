@@ -5,16 +5,9 @@ import com.example.nbarandomizer.models.FilterSettings
 import com.example.nbarandomizer.models.FilterSettings.Companion.FILTER_NONE_VALUE
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.Position
-import com.example.nbarandomizer.models.SortingAttrs
 
-/**
- * Возвращает новый список с элементами коллекции в случайном порядке
- */
 fun MutableList<Player>.randomize(): MutableList<Player> = shuffled().toMutableList()
 
-/**
- * Возвращает следующего игрока из коллекции
- */
 fun MutableList<Player>.getNextPlayer(): Player {
     return try {
         this.removeAt(0)
@@ -24,11 +17,6 @@ fun MutableList<Player>.getNextPlayer(): Player {
     }
 }
 
-/**
- *  Возвращает следующего игрока из коллекции по позиции
- *  @param position Позиция игрока
- *  @throws PlayerNotFoundException
- */
 fun MutableList<Player>.getNextPlayerByPosition(position: Position): Player {
     val player = this.find { it.position.contains(position.name) }
         ?: throw PlayerNotFoundException("с позицией $position")
@@ -38,12 +26,6 @@ fun MutableList<Player>.getNextPlayerByPosition(position: Position): Player {
     return player
 }
 
-/**
- * @param count Количество игроков в команде
- * @throws InvalidPlayersCountException
- * @throws NotEnoughPlayersException
- * @throws OddPlayersCountException
- */
 fun MutableList<Player>.generateTeams(playersCount: Int, teamsCount: Int = 1): List<Player> {
     val newCount = playersCount * teamsCount
 
@@ -77,8 +59,8 @@ fun MutableList<Player>.generateCompleteTeams(positions: List<Position>, teamsCo
     return players
 }
 
-fun MutableList<Player>.applyFilterSettings(filterSettings: FilterSettings): List<Player> {
-    return filter { it.name.contains(filterSettings.name, true)
+fun MutableList<Player>.applyFilterSettingsAndSort(filterSettings: FilterSettings): List<Player> {
+   return filter { it.name.contains(filterSettings.name, true)
             && (filterSettings.team == FILTER_NONE_VALUE || it.team.contains(filterSettings.team, true))
             && (filterSettings.position == FILTER_NONE_VALUE || it.position.contains(filterSettings.position, true))
     }.sortedWith(filterSettings.getComparator())
