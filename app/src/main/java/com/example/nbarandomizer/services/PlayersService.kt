@@ -52,7 +52,7 @@ class PlayersService(
     private fun getDetailsFileName(epoch: Epoch): String {
         return when(epoch) {
             Epoch.Current -> "currentPlayersDetails.json"
-            Epoch.AllTime -> "allTimePlayerDetails.json"
+            Epoch.AllTime -> "allTimePlayersDetails.json"
         }
     }
 
@@ -61,7 +61,7 @@ class PlayersService(
             ?.attribute("href")?.value ?: ""
     }
 
-    private fun extractPlayersPhotoUrl(element: Element): String {
+    private fun extractPlayerPhotoUrl(element: Element): String {
         return element.children().first()
             ?.attribute("data-src")?.value?.replace("-80x80", "") ?: ""
     }
@@ -104,7 +104,7 @@ class PlayersService(
             val info = document.select(".entry-subtext-font").map { it.text().trim() }
             val ratings = document.select(".attribute-box").map { it.text().trim().toInt() }
             val urls = document.select(".entry-font").map(::extractPlayerUrl)
-            val photosUrl = document.select(".entry-bg").map(::extractPlayersPhotoUrl)
+            val photosUrl = document.select(".entry-bg").map(::extractPlayerPhotoUrl)
 
             MutableList(names.size) {
                 val playerInfo = info[it].split("|")

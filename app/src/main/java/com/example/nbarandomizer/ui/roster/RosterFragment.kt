@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.PlayerAdapter
 import com.example.nbarandomizer.databinding.FragmentRosterBinding
-import com.example.nbarandomizer.extensions.applyFilterSettings
+import com.example.nbarandomizer.extensions.applyFilterSettingsAndSort
 import com.example.nbarandomizer.listeners.IPlayerDetailsListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
@@ -93,7 +93,7 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
             if (sharedViewModel.uiState.value is UiState.LoadingRoster)
                 return@launch
 
-            val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettings(sharedViewModel.filterSettings)
+            val filteredPlayers = sharedViewModel.selectedRoster.applyFilterSettingsAndSort(sharedViewModel.filterSettings)
 
             withContext(Dispatchers.Main) {
                 adapter.submitList(filteredPlayers) {

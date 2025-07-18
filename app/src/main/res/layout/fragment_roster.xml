@@ -34,7 +34,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="20dp"
-        android:src="?android:attr/actionModeWebSearchDrawable"
+        android:src="@drawable/search_24px"
+        app:maxImageSize="30dp"
         android:transitionName="filter_transition"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

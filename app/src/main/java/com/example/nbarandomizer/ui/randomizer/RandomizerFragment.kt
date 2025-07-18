@@ -36,6 +36,8 @@ class RandomizerFragment : Fragment() {
 
     private var shuffledPlayers: MutableLiveData<MutableList<Player>> = MutableLiveData(mutableListOf())
 
+    private var usedPlayers: MutableList<Player> = mutableListOf()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,11 +55,14 @@ class RandomizerFragment : Fragment() {
         sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) { newRoster ->
             if (shuffledPlayers.value!!.size > 0 && newRoster[0].epoch != shuffledPlayers.value!![0].epoch)
                 reset()
-            else
+            else {
                 shuffledPlayers.value = shuffledPlayers.value!!.map { newRoster[it.id] }.toMutableList()
+
+                usedPlayers = usedPlayers.map { newRoster[it.id] }.toMutableList()
+            }
         }
 
-        shuffledPlayers.observe(viewLifecycleOwner) { binding.remainingPlayersTextView.text = "Осталось игроков ${it.size}" }
+        shuffledPlayers.observe(viewLifecycleOwner) { binding.remainingPlayersTextView.text = "Осталось игроков: ${it.size}" }
 
         return binding.root
     }
@@ -71,6 +76,8 @@ class RandomizerFragment : Fragment() {
     private fun setOnClickListeners() {
         binding.randomizeButton.setOnClickListener { randomize() }
         binding.resetBtn.setOnClickListener { reset() }
+
+        binding.historyCard.setOnClickListener { showHistory() }
     }
 
     private fun initializePositionsChips() {
@@ -153,6 +160,8 @@ class RandomizerFragment : Fragment() {
             return
         }
 
+        usedPlayers.addAll(randomizedPlayers)
+
         val teamFragment = TeamFragment(randomizedPlayers, teamsCount)  { position ->
             val buffer = shuffledPlayers.value!!
 
@@ -185,6 +194,17 @@ class RandomizerFragment : Fragment() {
         binding.positionsChips.clearCheck()
         binding.playersCountSeekBar.progress = 0
         shuffledPlayers.value = mutableListOf()
+        usedPlayers.clear()
+    }
+
+    private fun showHistory() {
+        val historyFragment = HistoryFragment(usedPlayers)
+
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .add(R.id.container, historyFragment, "history")
+            .addToBackStack("history")
+            .commit()
     }
 
     override fun onDestroy() {

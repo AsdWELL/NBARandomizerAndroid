@@ -73,7 +73,7 @@ class FilterFragment : Fragment() {
 
         with(binding.sortingView) {
             initializeSpinner(this, SortingAttrs.entries.map { it.title }, false)
-            setText(sharedViewModel.filterSettings.sorting, false)
+            setText(sharedViewModel.filterSettings.sortingAttr, false)
         }
 
         with(binding.sortDirectionView) {
@@ -107,10 +107,10 @@ class FilterFragment : Fragment() {
             val name = binding.filterNameView.text.toString().trim()
             val team = binding.filterTeamView.text.toString()
             val position = binding.filterPositionView.text.toString()
-            val sorting = binding.sortingView.text.toString()
+            val sortingAttr = binding.sortingView.text.toString()
 
             sharedViewModel.filterSettings =
-                sharedViewModel.filterSettings.copy(name = name, team = team, position = position, sorting = sorting, sortAscending = _sortAscending)
+                sharedViewModel.filterSettings.copy(name = name, team = team, position = position, sortingAttr = sortingAttr, sortAscending = _sortAscending)
         }
     }
 

@@ -13,4 +13,6 @@
     <string name="team_label">Команда</string>
     <string name="position_label">Позиция</string>
     <string name="sorting_label">Сортировка</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.animators.PlayerCardAnimator
@@ -22,9 +21,6 @@ import com.example.nbarandomizer.listeners.IPlayerCardListener
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.ui.playerDetails.PlayerDetailsFragment
 import com.example.nbarandomizer.viewModels.SharedViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class TeamFragment(
     private val players: MutableList<Player>,
@@ -84,16 +80,12 @@ class TeamFragment(
 
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            adapter = TeamAdapter(this@TeamFragment)
-            adapter.submitList(players)
+        adapter = TeamAdapter(this@TeamFragment)
+        adapter.submitList(players)
 
-            withContext(Dispatchers.Main) {
-                binding.recyclerView.itemAnimator = PlayerCardAnimator()
-                binding.recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
-                binding.recyclerView.adapter = adapter
-            }
-        }
+        binding.recyclerView.itemAnimator = PlayerCardAnimator()
+        binding.recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
+        binding.recyclerView.adapter = adapter
 
         return binding.root
     }

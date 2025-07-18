@@ -13,7 +13,7 @@ data class FilterSettings (
     var name: String = "",
     var team: String = FILTER_NONE_VALUE,
     var position: String = FILTER_NONE_VALUE,
-    var sorting: String = SortingAttrs.Overall.title,
+    var sortingAttr: String = SortingAttrs.Overall.title,
     var sortAscending: Boolean = false
 ) {
     companion object {
@@ -21,7 +21,7 @@ data class FilterSettings (
     }
 
     fun getComparator(): Comparator<Player> {
-        val comparator: Comparator<Player> = when(sorting) {
+        val comparator: Comparator<Player> = when(sortingAttr) {
             SortingAttrs.Name.title -> compareBy { it.playerName }
             SortingAttrs.Team.title -> compareBy { it.team }
             SortingAttrs.ThreePoint.title -> compareBy { it.threePointRating.value }
