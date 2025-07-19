@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.FilterSettings
+import com.example.nbarandomizer.models.History
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.models.PlayerNickname
@@ -60,6 +61,8 @@ class SharedViewModel : ViewModel() {
         }
 
     var playersDetails = mutableListOf<PlayerDetails>()
+
+    var history = History()
 
     val nicknamesFile = "nicknames.json"
 
