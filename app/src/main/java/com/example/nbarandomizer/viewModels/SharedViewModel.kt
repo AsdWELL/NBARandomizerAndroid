@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.FilterSettings
+import com.example.nbarandomizer.models.History
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.models.Rating
@@ -55,7 +56,8 @@ class SharedViewModel : ViewModel() {
         }
 
     var playersDetails = mutableListOf<PlayerDetails>()
-        private set
+
+    var history = History()
 
     private suspend fun findChanges(oldData: List<Player>, newData: List<Player>): MutableList<Player> {
         return withContext(Dispatchers.IO) {

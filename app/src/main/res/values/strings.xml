@@ -15,4 +15,11 @@
     <string name="sorting_label">Сортировка</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="show_history_label">Посмотреть историю</string>
+    <string name="players_count_text_view_initial_value">Игроков: 1</string>
+    <string name="history_label">История</string>
+    <string name="used_players_label">Использовано</string>
+    <string name="remaining_players_label">Осталось</string>
+    <string name="games_count_label">Сыграно матчей</string>
+    <string name="empty_history_msg">Нихуя пока тут нет</string>
 </resources>

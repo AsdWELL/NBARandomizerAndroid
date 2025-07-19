@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.roster.RosterFragment">
 
-    <TextView
-        android:id="@+id/playersCountTextView"
-        android:textSize="20sp"
-        android:textStyle="bold|italic"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:liftOnScroll="false">
+
+        <TextView
+            android:id="@+id/playersCountTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="20sp"
+            android:paddingVertical="5dp"
+            android:textAlignment="center"
+            android:textStyle="bold|italic"
+            app:layout_collapseMode="parallax"
+            app:layout_scrollFlags="scroll|snap|enterAlways"/>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:nestedScrollingEnabled="false"
+        android:nestedScrollingEnabled="true"
         style="@android:style/Widget.Material.ScrollView"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_player"
-        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/playersCountTextView"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:layout_height="match_parent"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/searchButton"
@@ -34,10 +40,10 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="20dp"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         android:src="@drawable/search_24px"
         app:maxImageSize="30dp"
         android:transitionName="filter_transition"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_gravity="bottom|end"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

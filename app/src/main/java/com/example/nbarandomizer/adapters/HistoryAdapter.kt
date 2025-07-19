@@ -13,7 +13,7 @@ import com.example.nbarandomizer.models.Player
 class HistoryViewHolder(private val binding: ItemHistoryBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(player: Player) {
         with(binding) {
-            name.text = player.playerName
+            name.text = player.name
 
             Glide.with(binding.root)
                 .load(player.photoUrl)

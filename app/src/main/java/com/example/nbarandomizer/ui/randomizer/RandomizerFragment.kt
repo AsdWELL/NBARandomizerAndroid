@@ -36,7 +36,7 @@ class RandomizerFragment : Fragment() {
 
     private var shuffledPlayers: MutableLiveData<MutableList<Player>> = MutableLiveData(mutableListOf())
 
-    private var usedPlayers: MutableList<Player> = mutableListOf()
+    private val history get() = sharedViewModel.history
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +58,7 @@ class RandomizerFragment : Fragment() {
             else {
                 shuffledPlayers.value = shuffledPlayers.value!!.map { newRoster[it.id] }.toMutableList()
 
-                usedPlayers = usedPlayers.map { newRoster[it.id] }.toMutableList()
+                history.updatePlayers(newRoster)
             }
         }
 
@@ -160,7 +160,7 @@ class RandomizerFragment : Fragment() {
             return
         }
 
-        usedPlayers.addAll(randomizedPlayers)
+        history.addPlayers(randomizedPlayers)
 
         val teamFragment = TeamFragment(randomizedPlayers, teamsCount)  { position ->
             val buffer = shuffledPlayers.value!!
@@ -175,6 +175,8 @@ class RandomizerFragment : Fragment() {
                 toastMessage(ex.message!!)
                 return@TeamFragment randomizedPlayers[position]
             }
+
+            history.addPlayerReplacement(player)
 
             shuffledPlayers.value = buffer
 
@@ -194,11 +196,11 @@ class RandomizerFragment : Fragment() {
         binding.positionsChips.clearCheck()
         binding.playersCountSeekBar.progress = 0
         shuffledPlayers.value = mutableListOf()
-        usedPlayers.clear()
+        history.clear()
     }
 
     private fun showHistory() {
-        val historyFragment = HistoryFragment(usedPlayers)
+        val historyFragment = HistoryFragment()
 
         requireActivity().supportFragmentManager
             .beginTransaction()
