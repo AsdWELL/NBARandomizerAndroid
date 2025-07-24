@@ -1,12 +1,16 @@
 package com.example.nbarandomizer.services
 
 import com.example.nbarandomizer.R
+import com.example.nbarandomizer.exceptions.LostConnectionException
+import com.example.nbarandomizer.exceptions.PlayerDetailsFileNotFoundException
+import com.example.nbarandomizer.exceptions.RosterFileNotFoundException
 import com.example.nbarandomizer.models.AttributeRatings
 import com.example.nbarandomizer.models.Badge
 import com.example.nbarandomizer.models.Epoch
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.models.Rating
+import com.example.nbarandomizer.models.Version2K
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Element
 import io.ktor.client.HttpClient
@@ -29,6 +33,8 @@ class PlayersService(
     private val cacheDir: File,
     private val getColor: (colorId: Int) -> Int
 ) : Closeable {
+    private val _latestVersion = Version2K.latest()
+
     private val _baseUrl = "https://www.2kratings.com/lists/top-100-"
 
     private val _client = HttpClient(CIO)
@@ -39,20 +45,6 @@ class PlayersService(
         return when(epoch) {
             Epoch.Current -> "highest-nba-2k-ratings"
             Epoch.AllTime -> "all-time-players"
-        }
-    }
-
-    private fun getFileName(epoch: Epoch): String{
-        return when(epoch) {
-            Epoch.Current -> "currentPlayers.json"
-            Epoch.AllTime -> "allTimePlayers.json"
-        }
-    }
-
-    private fun getDetailsFileName(epoch: Epoch): String {
-        return when(epoch) {
-            Epoch.Current -> "currentPlayersDetails.json"
-            Epoch.AllTime -> "allTimePlayersDetails.json"
         }
     }
 
@@ -191,9 +183,9 @@ class PlayersService(
         }
     }
 
-    private suspend fun getPlayersFromCacheByEpoch(epoch: Epoch): MutableList<Player> {
+    private suspend fun getPlayersFromCacheByEpochAnd2KVersion(epoch: Epoch, version: Version2K): MutableList<Player> {
         return withContext(Dispatchers.IO) {
-            val fileName = getFileName(epoch)
+            val fileName = getRosterFileName(epoch, version)
 
             val file = File(cacheDir, fileName)
 
@@ -204,9 +196,9 @@ class PlayersService(
         }
     }
 
-    private suspend fun savePlayersToFile(players: MutableList<Player>, epoch: Epoch) {
+    private suspend fun savePlayersToFile(players: MutableList<Player>, epoch: Epoch, version: Version2K) {
         withContext(Dispatchers.IO) {
-            val fileName = getFileName(epoch)
+            val fileName = getRosterFileName(epoch, version)
 
             val file = File(cacheDir, fileName)
 
@@ -216,7 +208,21 @@ class PlayersService(
         }
     }
 
-    suspend fun downloadPlayersByEpoch(epoch: Epoch): MutableList<Player> {
+    fun getRosterFileName(epoch: Epoch, version: Version2K): String{
+        return when(epoch) {
+            Epoch.Current -> "current_players_${version.toString().lowercase()}.json"
+            Epoch.AllTime -> "all_time_players_${version.toString().lowercase()}.json"
+        }
+    }
+
+    fun getDetailsFileName(epoch: Epoch, version: Version2K): String {
+        return when(epoch) {
+            Epoch.Current -> "current_players_details_${version.toString().lowercase()}.json"
+            Epoch.AllTime -> "all_time_players_details_${version.toString().lowercase()}.json"
+        }
+    }
+
+    suspend fun downloadAndCacheLatest2KVersionRosterByEpoch(epoch: Epoch): MutableList<Player> {
         val suffixUrl = getSuffixUrl(epoch)
 
         val content = _client.get("$_baseUrl$suffixUrl").bodyAsText()
@@ -225,25 +231,29 @@ class PlayersService(
 
         val players = parsePlayers(trimmedContent, epoch).await()
 
-        savePlayersToFile(players, epoch)
+        savePlayersToFile(players, epoch, _latestVersion)
 
         return players
     }
 
-    suspend fun getPlayersByEpoch(epoch: Epoch): MutableList<Player> {
-        val players = getPlayersFromCacheByEpoch(epoch)
+    suspend fun getPlayersByEpochAnd2KVersion(epoch: Epoch, version: Version2K): MutableList<Player> {
+        val players = getPlayersFromCacheByEpochAnd2KVersion(epoch, version)
 
-        if (players.isEmpty())
-            return try {
-                downloadPlayersByEpoch(epoch)
-            } catch (ex: Exception) {
-                mutableListOf()
-            }
+        if (players.isEmpty()) {
+            if (version == _latestVersion)
+                return try {
+                    downloadAndCacheLatest2KVersionRosterByEpoch(epoch)
+                } catch (ex: Exception) {
+                    throw LostConnectionException()
+                }
+            else
+                throw RosterFileNotFoundException(version)
+        }
 
         return players
     }
 
-    suspend fun downloadPlayerDetails(player: Player): PlayerDetails {
+    suspend fun downloadLatest2KVersionPlayerDetails(player: Player): PlayerDetails {
         return try {
             val content = _client.get(player.url).bodyAsText()
 
@@ -252,7 +262,7 @@ class PlayersService(
                 content.indexOf("<!-- End Badges Tab -->")
             )
 
-            val details =  parsePlayersDetails(player, trimmedContent)
+            val details = parsePlayersDetails(player, trimmedContent)
 
             withContext(Dispatchers.Main) {
                 notifyProgressBar?.invoke()
@@ -264,34 +274,12 @@ class PlayersService(
             throw ex
         }
         catch (ex: Exception) {
-            downloadPlayerDetails(player)
+            downloadLatest2KVersionPlayerDetails(player)
         }
     }
 
-    suspend fun cachePlayerDetails(playerDetails: List<PlayerDetails>, epoch: Epoch) {
-        withContext(Dispatchers.IO) {
-            val file = File(cacheDir, getDetailsFileName(epoch))
-
-            FileOutputStream(file, false).use {
-                it.write(Json.encodeToString(playerDetails).toByteArray())
-            }
-        }
-    }
-
-    private suspend fun downloadAndCachePlayersDetails(players: List<Player>, epoch: Epoch) = coroutineScope {
-        async(Dispatchers.IO) {
-            val details = players.map {
-                async(Dispatchers.IO) { downloadPlayerDetails(it) }
-            }.awaitAll().toMutableList()
-
-            cachePlayerDetails(details, epoch)
-
-            details
-        }
-    }
-
-    private suspend fun getPlayersDetailsFromCacheByEpoch(epoch: Epoch): MutableList<PlayerDetails> {
-        val fileName = getDetailsFileName(epoch)
+    private suspend fun getPlayersDetailsFromCacheByEpochAnd2KVersion(epoch: Epoch, version: Version2K): MutableList<PlayerDetails> {
+        val fileName = getDetailsFileName(epoch, version)
 
         val file = File(cacheDir, fileName)
 
@@ -303,15 +291,41 @@ class PlayersService(
             mutableListOf()
     }
 
-    suspend fun getPlayersDetails(players: List<Player>, epoch: Epoch): MutableList<PlayerDetails> {
-        val details = getPlayersDetailsFromCacheByEpoch(epoch)
+    suspend fun cachePlayerDetails(playerDetails: List<PlayerDetails>, epoch: Epoch, version: Version2K) {
+        withContext(Dispatchers.IO) {
+            val file = File(cacheDir, getDetailsFileName(epoch, version))
 
-        if (details.isEmpty())
-            return try {
-                downloadAndCachePlayersDetails(players, epoch).await()
-            } catch (ex: Exception) {
-                mutableListOf()
+            FileOutputStream(file, false).use {
+                it.write(Json.encodeToString(playerDetails).toByteArray())
             }
+        }
+    }
+
+    private suspend fun downloadAndCacheLatest2KVersionPlayersDetails(players: List<Player>, epoch: Epoch) = coroutineScope {
+        async(Dispatchers.IO) {
+            val details = players.map {
+                async(Dispatchers.IO) { downloadLatest2KVersionPlayerDetails(it) }
+            }.awaitAll().toMutableList()
+
+            cachePlayerDetails(details, epoch, _latestVersion)
+
+            details
+        }
+    }
+
+    suspend fun getPlayersDetailsByEpochAnd2KVersion(players: List<Player>, epoch: Epoch, version: Version2K): MutableList<PlayerDetails> {
+        val details = getPlayersDetailsFromCacheByEpochAnd2KVersion(epoch, version)
+
+        if (details.isEmpty()) {
+            if (version == _latestVersion)
+                return try {
+                    downloadAndCacheLatest2KVersionPlayersDetails(players, epoch).await()
+                } catch (ex: Exception) {
+                    throw LostConnectionException()
+                }
+            else
+                throw PlayerDetailsFileNotFoundException(version)
+        }
 
         return details
     }

@@ -41,6 +41,11 @@ class RosterFragment : Fragment(), IPlayerDetailsListener {
             return
         }
 
+        if (sharedViewModel.playersDetails.isEmpty()) {
+            toastMessage("Нихуя")
+            return
+        }
+
         val playerDetailsFragment = PlayerDetailsFragment(sharedViewModel.playersDetails[player.id], playerCard)
 
         requireActivity().supportFragmentManager

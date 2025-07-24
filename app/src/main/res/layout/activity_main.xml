@@ -28,7 +28,6 @@
         android:id="@+id/textInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
         android:layout_width="140dp"
-        android:enabled="false"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         app:hintEnabled="false"
