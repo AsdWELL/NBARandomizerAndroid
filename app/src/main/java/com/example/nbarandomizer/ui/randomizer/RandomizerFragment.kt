@@ -53,8 +53,11 @@ class RandomizerFragment : Fragment() {
         setOnClickListeners()
 
         sharedViewModel.selectedRosterBinding.observe(viewLifecycleOwner) { newRoster ->
-            if (shuffledPlayers.value!!.size > 0 && newRoster[0].epoch != shuffledPlayers.value!![0].epoch)
+            if (sharedViewModel.isRosterReplaced) {
+                sharedViewModel.isRosterReplaced = false
+
                 reset()
+            }
             else {
                 shuffledPlayers.value = shuffledPlayers.value!!.map { newRoster[it.id] }.toMutableList()
 

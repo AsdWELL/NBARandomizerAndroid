@@ -35,6 +35,10 @@ class TeamFragment(
 
     private lateinit var adapter: TeamAdapter
 
+    private fun toastMessage(msg: String) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+    }
+
     override fun onPlayerCardClick(position: Int) {
         val newData = adapter.currentList.toMutableList().apply {
             this[position] = randomizeNewPlayer(position)
@@ -45,7 +49,12 @@ class TeamFragment(
 
     override fun onPlayerCardLongClick(player: Player, playerCard: View) {
         if (sharedViewModel.isDownloadingDetails()) {
-            Toast.makeText(context, "Погоди ща скачается", Toast.LENGTH_SHORT).show()
+            toastMessage("Погоди ща скачается")
+            return
+        }
+
+        if (sharedViewModel.playersDetails.isEmpty()) {
+            toastMessage("Нихуя")
             return
         }
 

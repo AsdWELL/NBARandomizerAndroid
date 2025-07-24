@@ -8,23 +8,16 @@
     android:foreground="?attr/selectableItemBackgroundBorderless"
     android:paddingTop="10dp">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/photo_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/gray"
-        app:strokeColor="@android:color/transparent"
-        app:cardCornerRadius="30dp"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/photo"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="10dp"
+        android:background="@color/gray"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
         app:layout_constraintBottom_toBottomOf="@id/divider"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/photo"
-            android:layout_width="60dp"
-            android:layout_height="60dp"/>
-    </com.google.android.material.card.MaterialCardView>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/name"
@@ -34,15 +27,15 @@
         android:textSize="14sp"
         android:textStyle="bold|italic"
         app:layout_constraintEnd_toStartOf="@+id/overallCardView"
-        app:layout_constraintStart_toEndOf="@+id/photo_container"
-        app:layout_constraintTop_toTopOf="@+id/photo_container" />
+        app:layout_constraintStart_toEndOf="@+id/photo"
+        app:layout_constraintTop_toTopOf="@+id/photo" />
 
     <TextView
         android:id="@+id/details"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/photo_container"
+        app:layout_constraintBottom_toBottomOf="@+id/photo"
         app:layout_constraintEnd_toEndOf="@+id/name"
         app:layout_constraintStart_toStartOf="@+id/name" />
 
@@ -58,9 +51,9 @@
         style="@style/ratingCard"
         android:tooltipText="Overall"
         android:layout_marginHorizontal="7dp"
-        app:layout_constraintBottom_toBottomOf="@+id/photo_container"
+        app:layout_constraintBottom_toBottomOf="@+id/photo"
         app:layout_constraintEnd_toStartOf="@+id/threePtCardView"
-        app:layout_constraintTop_toTopOf="@+id/photo_container">
+        app:layout_constraintTop_toTopOf="@+id/photo">
 
         <TextView
             android:id="@+id/overallTextView"
@@ -73,9 +66,9 @@
         style="@style/ratingCard"
         android:tooltipText="3pt"
         android:layout_marginHorizontal="7dp"
-        app:layout_constraintBottom_toBottomOf="@+id/photo_container"
+        app:layout_constraintBottom_toBottomOf="@+id/photo"
         app:layout_constraintEnd_toStartOf="@+id/dunkCardView"
-        app:layout_constraintTop_toTopOf="@+id/photo_container">
+        app:layout_constraintTop_toTopOf="@+id/photo">
 
         <TextView
             android:id="@+id/threePtTextView"
@@ -87,9 +80,9 @@
         style="@style/ratingCard"
         android:tooltipText="Driving dunk"
         android:layout_marginHorizontal="7dp"
-        app:layout_constraintBottom_toBottomOf="@+id/photo_container"
+        app:layout_constraintBottom_toBottomOf="@+id/photo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/photo_container">
+        app:layout_constraintTop_toTopOf="@+id/photo">
 
         <TextView
             android:id="@+id/dunkTextView"

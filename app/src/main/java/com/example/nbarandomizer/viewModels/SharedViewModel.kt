@@ -10,6 +10,7 @@ import com.example.nbarandomizer.models.History
 import com.example.nbarandomizer.models.Player
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.models.PlayerNickname
+import com.example.nbarandomizer.models.Version2K
 import com.example.nbarandomizer.services.PlayersService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,15 +36,16 @@ class SharedViewModel : ViewModel() {
 
     private var downloadingDetailsJob: Job? = null
 
-    private val _selectedRosterBinding: MutableLiveData<MutableList<Player>> = MutableLiveData(mutableListOf())
-    val selectedRosterBinding: LiveData<MutableList<Player>> get() = _selectedRosterBinding
-
     private val _uiState = MutableLiveData<UiState>(UiState.Idle)
     val uiState: LiveData<UiState> get() = _uiState
 
     private lateinit var nicknames: MutableList<PlayerNickname>
 
     var epoch = Epoch.Current
+        private set
+
+    var version: Version2K = Version2K._2K25
+        private set
 
     private val _filterSettingsBinding = MutableLiveData(FilterSettings())
     val filterSettingsBinding: LiveData<FilterSettings> get() = _filterSettingsBinding
@@ -54,15 +56,20 @@ class SharedViewModel : ViewModel() {
             _filterSettingsBinding.value = value
         }
 
+    private val _selectedRosterBinding: MutableLiveData<MutableList<Player>> = MutableLiveData(mutableListOf())
+    val selectedRosterBinding: LiveData<MutableList<Player>> get() = _selectedRosterBinding
+
     var selectedRoster: MutableList<Player>
         get() = _selectedRosterBinding.value!!
         private set(value) {
             _selectedRosterBinding.value = value
         }
 
+    var isRosterReplaced = false
+
     var playersDetails = mutableListOf<PlayerDetails>()
 
-    var history = History()
+    val history = History()
 
     val nicknamesFile = "nicknames.json"
 
@@ -71,6 +78,7 @@ class SharedViewModel : ViewModel() {
             player.nickname = nicknames.find { it.playerName == player.name }?.nickname
         }
 
+        isRosterReplaced = true
         selectedRoster = players
     }
 
@@ -101,7 +109,7 @@ class SharedViewModel : ViewModel() {
     private suspend fun updatePlayersDetails(playersService: PlayersService, updatedPlayers: List<Player>, epoch: Epoch) {
         withContext(Dispatchers.IO) {
             val newDetails = updatedPlayers.map {
-                viewModelScope.async(Dispatchers.IO) { playersService.downloadPlayerDetails(it) }
+                viewModelScope.async(Dispatchers.IO) { playersService.downloadLatest2KVersionPlayerDetails(it) }
             }.awaitAll().toMutableList()
 
             applyNickNamesToDetails(newDetails)
@@ -110,7 +118,7 @@ class SharedViewModel : ViewModel() {
                 playersDetails[it.id] = it
             }
 
-            playersService.cachePlayerDetails(playersDetails, epoch)
+            playersService.cachePlayerDetails(playersDetails, epoch, Version2K.latest())
 
             withContext(Dispatchers.Main) {
                 _uiState.value = UiState.SuccessDetails
@@ -126,8 +134,10 @@ class SharedViewModel : ViewModel() {
         downloadingDetailsJob = null
     }
 
-    fun downloadRosterAndDetails(playersService: PlayersService) {
+    fun downloadRosterAndDetails(playersService: PlayersService, epoch: Epoch) {
         stopDownloadingJob()
+
+        this.epoch = epoch
 
         downloadingJob = viewModelScope.launch {
             _uiState.value = UiState.LoadingRoster
@@ -136,7 +146,7 @@ class SharedViewModel : ViewModel() {
 
             try {
                 withContext(Dispatchers.IO) {
-                    players = playersService.downloadPlayersByEpoch(epoch)
+                    players = playersService.downloadAndCacheLatest2KVersionRosterByEpoch(epoch)
                 }
             }
             catch (ex: Exception) {
@@ -160,42 +170,54 @@ class SharedViewModel : ViewModel() {
         }
     }
 
-    fun getRosterAndDetails(playersService: PlayersService) {
+    fun getRosterAndDetails(playersService: PlayersService, epoch: Epoch, version: Version2K) {
         stopDownloadingJob()
 
-        if (selectedRoster.isNotEmpty() && selectedRoster[0].epoch == epoch)
+        if (selectedRoster.isNotEmpty() && this.epoch == epoch && this.version == version)
             return
+
+        this.epoch = epoch
+        this.version = version
 
         filterSettings = FilterSettings()
 
         downloadingJob = viewModelScope.launch {
              _uiState.value = UiState.LoadingRoster
 
-            val players = withContext(Dispatchers.IO) {
-                playersService.getPlayersByEpoch(epoch)
-            }
+            try {
+                val players = withContext(Dispatchers.IO) {
+                    playersService.getPlayersByEpochAnd2KVersion(epoch, version)
+                }
 
-            if (players.isEmpty()) {
-                _uiState.value = UiState.Error("Интернет включи сука")
-
-                return@launch
-            }
-            else {
                 applyNickNamesToPlayersAndSetRoster(players)
 
                 _uiState.value = UiState.SuccessRoster
+            }
+            catch (ex: Exception) {
+                _uiState.value = UiState.Error(ex.message!!)
+
+                return@launch
             }
 
             downloadingDetailsJob = viewModelScope.launch {
                 _uiState.value = UiState.LoadingDetails
 
-                val details = withContext(Dispatchers.IO) {
-                    playersService.getPlayersDetails(selectedRoster, epoch)
+                try {
+                    val details = withContext(Dispatchers.IO) {
+                        playersService.getPlayersDetailsByEpochAnd2KVersion(selectedRoster, epoch, version)
+                    }
+
+                    applyNickNamesToDetailsAndSetDetails(details)
+
+                    _uiState.value = UiState.SuccessDetails
                 }
+                catch (ex: Exception) {
+                    _uiState.value = UiState.Error(ex.message!!)
 
-                applyNickNamesToDetailsAndSetDetails(details)
+                    playersDetails.clear()
 
-                _uiState.value = UiState.SuccessDetails
+                    return@launch
+                }
             }
         }
     }

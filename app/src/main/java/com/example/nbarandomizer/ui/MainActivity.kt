@@ -18,6 +18,7 @@ import com.example.nbarandomizer.databinding.ActivityMainBinding
 import com.example.nbarandomizer.extensions.gone
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.models.Epoch
+import com.example.nbarandomizer.models.Version2K
 import com.example.nbarandomizer.services.PlayersService
 import com.example.nbarandomizer.viewModels.SharedViewModel
 import com.example.nbarandomizer.viewModels.UiState
@@ -62,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         playersService.notifyProgressBar = { binding.progressBar.progress++ }
 
         getNicknames()
+
+        loadRosterAndDetailsIntoCache()
     }
 
     override fun onResume() {
@@ -71,6 +74,39 @@ class MainActivity : AppCompatActivity() {
 
         if (sharedViewModel.uiState.value is UiState.Idle)
             getRoster()
+    }
+
+    private fun tryLoadResourceFileIntoCache(fileName: String, resourceName: String) {
+        val file = File(applicationContext.cacheDir, fileName)
+
+        if (!file.exists()) {
+            val resourceId = applicationContext.resources.getIdentifier(
+                resourceName,
+                "raw",
+                applicationContext.packageName
+            )
+
+            val inputStream = applicationContext.resources.openRawResource(resourceId)
+
+            FileOutputStream(file).use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+    }
+
+    private fun loadRosterAndDetailsIntoCache() {
+        Version2K.entries.forEach { version ->
+            if (version == Version2K.latest())
+                return@forEach
+
+            Epoch.entries.forEach { epoch ->
+                val rosterFileName = playersService.getRosterFileName(epoch, version)
+                val detailsFileName = playersService.getDetailsFileName(epoch, version)
+
+                tryLoadResourceFileIntoCache(rosterFileName, rosterFileName.substringBeforeLast("."))
+                tryLoadResourceFileIntoCache(detailsFileName, detailsFileName.substringBeforeLast("."))
+            }
+        }
     }
 
     private fun getNicknames() {
@@ -89,12 +125,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initializeSpinners() {
         initializeSpinner(binding.epochSpinner, Epoch.entries.map { it.toString() })
-        binding.epochSpinner.setText(sharedViewModel.epoch.name, false)
+        binding.epochSpinner.setText(sharedViewModel.epoch.toString(), false)
 
-        val versions = listOf("2K25", "2K24", "2K23", "2K22", "2K21")
-
-        initializeSpinner(binding.versionSpinner, versions)
-        binding.versionSpinner.setText(versions[0], false)
+        initializeSpinner(binding.versionSpinner, Version2K.entries.map { it.toString() })
+        binding.versionSpinner.setText(sharedViewModel.version.toString(), false)
     }
 
     private fun initializeSpinner(textView: AutoCompleteTextView, values: List<String>) {
@@ -134,6 +168,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun getSelectedEpoch(): Epoch {
         return Epoch.valueOf(binding.epochSpinner.text.toString())
+    }
+
+    private fun getSelectedVersion(): Version2K {
+        return Version2K.valueOf("_${binding.versionSpinner.text}")
     }
 
     private fun setStatusText(text: String) {
@@ -188,13 +226,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun downloadRoster() {
-        sharedViewModel.downloadRosterAndDetails(playersService)
+        if (sharedViewModel.version == Version2K.latest())
+            sharedViewModel.downloadRosterAndDetails(playersService, getSelectedEpoch())
     }
 
     private fun getRoster() {
-        sharedViewModel.epoch = getSelectedEpoch()
-
-        sharedViewModel.getRosterAndDetails(playersService)
+        sharedViewModel.getRosterAndDetails(playersService, getSelectedEpoch(), getSelectedVersion())
     }
 
     override fun onDestroy() {

@@ -131,13 +131,13 @@ class PlayerDetailsFragment(
             addTransition(createEnterTransformation(playerCard, binding.root) {
                 _binding?.viewPager?.show()
             })
-            addTransition(createEnterTransformation(playerCard.findViewById(R.id.photo_container), binding.photoContainer))
+            addTransition(createEnterTransformation(playerCard.findViewById(R.id.photo), binding.photoContainer))
         }
 
         returnTransition = TransitionSet().apply {
             ordering = TransitionSet.ORDERING_TOGETHER
             addTransition(createReturnTransformation(binding.root, playerCard))
-            addTransition(createReturnTransformation(binding.photoContainer, playerCard.findViewById(R.id.photo_container)))
+            addTransition(createReturnTransformation(binding.photoContainer, playerCard.findViewById(R.id.photo)))
         }
     }
 
