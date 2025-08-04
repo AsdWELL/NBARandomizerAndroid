@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.ObjectKey
-import com.example.nbarandomizer.callbacks.TeamDiffCallback
+import com.example.nbarandomizer.callbacks.PlayerDiffCallback
 import com.example.nbarandomizer.databinding.PlayerCardBinding
 import com.example.nbarandomizer.listeners.IPlayerCardListener
 import com.example.nbarandomizer.models.Player
@@ -71,7 +71,7 @@ class TeamViewHolder(private val binding: PlayerCardBinding) : RecyclerView.View
 }
 
 class TeamAdapter(private val playerCardListener: IPlayerCardListener)
-    : ListAdapter<Player, TeamViewHolder>(TeamDiffCallback()) {
+    : ListAdapter<Player, TeamViewHolder>(PlayerDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TeamViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = PlayerCardBinding.inflate(inflater, parent, false)

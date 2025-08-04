@@ -93,7 +93,6 @@ class TeamFragment(
         adapter.submitList(players)
 
         binding.recyclerView.itemAnimator = PlayerCardAnimator()
-        binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.layoutManager = GridLayoutManager(context, teamsCount)
         binding.recyclerView.adapter = adapter
 

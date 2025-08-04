@@ -18,16 +18,12 @@ class HistoryViewHolder(private val binding: ItemHistoryBinding) : RecyclerView.
             Glide.with(binding.root)
                 .load(player.photoUrl)
                 .signature(ObjectKey("${player.id}_${player.team}"))
-                .circleCrop()
                 .into(photo)
         }
     }
 }
 
 class HistoryAdapter : ListAdapter<Player, HistoryViewHolder>(PlayerDiffCallback()) {
-    init {
-        setHasStableIds(true)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -38,9 +34,5 @@ class HistoryAdapter : ListAdapter<Player, HistoryViewHolder>(PlayerDiffCallback
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         holder.bind(currentList[position])
-    }
-
-    override fun getItemId(position: Int): Long {
-        return currentList[position].id.toLong()
     }
 }
