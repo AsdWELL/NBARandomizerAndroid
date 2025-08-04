@@ -49,7 +49,6 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
             Glide.with(binding.root)
                 .load(player.photoUrl)
                 .signature(ObjectKey("${player.id}_${player.team}"))
-                .circleCrop()
                 .into(photo)
         }
 
@@ -63,10 +62,6 @@ class PlayerViewHolder(private val binding: ItemPlayerBinding) : RecyclerView.Vi
 class PlayerAdapter(private val playerDetailsListener: IPlayerDetailsListener)
     : ListAdapter<Player, PlayerViewHolder>(PlayerDiffCallback()) {
 
-    init {
-        setHasStableIds(true)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemPlayerBinding.inflate(inflater, parent, false)
@@ -76,9 +71,5 @@ class PlayerAdapter(private val playerDetailsListener: IPlayerDetailsListener)
 
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
         holder.bind(currentList[position], playerDetailsListener)
-    }
-
-    override fun getItemId(position: Int): Long {
-        return currentList[position].id.toLong()
     }
 }

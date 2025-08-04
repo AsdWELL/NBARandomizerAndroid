@@ -48,9 +48,7 @@ class HistoryFragment : Fragment() {
         adapter = HistoryAdapter()
         adapter.submitList(history.usedPlayers)
 
-        binding.recyclerView.setItemViewCacheSize(100)
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
     }
 
