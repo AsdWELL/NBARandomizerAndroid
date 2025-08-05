@@ -8,7 +8,7 @@
     android:background="?android:attr/colorBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.randomizer.HistoryFragment">
-    
+
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -165,16 +165,26 @@
                             android:text="@string/games_count_label" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_gravity="center_horizontal"/>
             </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="5dp"
-        tools:listitem="@layout/item_history"
+        android:paddingHorizontal="5dp"
+        tools:listitem="@layout/item_game"
         android:nestedScrollingEnabled="true"
         style="@android:style/Widget.Material.ScrollView"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />

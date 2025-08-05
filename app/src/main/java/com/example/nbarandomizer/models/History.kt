@@ -1,46 +1,59 @@
 package com.example.nbarandomizer.models
 
+data class PlayerReplacement(
+    val oldPlayer: Player,
+    val newPlayer: Player
+)
+
+data class Game(
+    var usedPlayers: MutableList<Player>,
+    val teamsCount: Int,
+    val replacements: MutableList<PlayerReplacement> = mutableListOf()
+)
+
 class History {
     private companion object {
         const val TOTAL_PLAYERS_COUNT = 100
     }
 
+    private var _games: MutableList<Game> = mutableListOf()
+    val games get() = _games.toList()
+
     private var _usedPlayersCount = 0
     val usedPlayersCount get() = _usedPlayersCount
 
-    private var _remainingPlayersCount = TOTAL_PLAYERS_COUNT
-    val remainingPlayersCount get() = _remainingPlayersCount
+    val remainingPlayersCount get() = TOTAL_PLAYERS_COUNT - _usedPlayersCount
 
-    private var _gamesCount = 0
-    val gamesCount get() = _gamesCount
+    val gamesCount get() = _games.size
 
-    private var _usedPlayers: MutableList<Player> = mutableListOf()
-    val usedPlayers get() = _usedPlayers.toList()
+    fun addPlayerReplacementToLastGame(oldPlayer: Player, newPlayer: Player) {
+        if (_games.isEmpty())
+            return
 
-    fun addPlayerReplacement(player: Player) {
         _usedPlayersCount++
-        _remainingPlayersCount--
-        _usedPlayers.add(player)
+
+        with(_games.last()) {
+            replacements.add(PlayerReplacement(oldPlayer, newPlayer))
+
+            val oldPlayerIndex = usedPlayers.indexOf(oldPlayer)
+            usedPlayers[oldPlayerIndex] = newPlayer
+        }
     }
 
-    fun addPlayers(players: List<Player>) {
-        players.forEach { addPlayerReplacement(it) }
-        _gamesCount++
+    fun addPlayers(players: MutableList<Player>, teamsCount: Int) {
+        _usedPlayersCount += players.size
 
-        /*_usedPlayersCount += players.size
-        _remainingPlayersCount -= players.size
-        _gamesCount++
-        _usedPlayers.addAll(players)*/
+        _games.add(Game(players, teamsCount))
     }
 
     fun updatePlayers(newPlayers: List<Player>) {
-        _usedPlayers = _usedPlayers.map { newPlayers[it.id] }.toMutableList()
+        _games.forEach { game ->
+            game.usedPlayers = game.usedPlayers.map { newPlayers[it.id] }.toMutableList()
+        }
     }
 
     fun clear() {
         _usedPlayersCount = 0
-        _gamesCount = 0
-        _remainingPlayersCount = TOTAL_PLAYERS_COUNT
-        _usedPlayers.clear()
+        _games.clear()
     }
 }

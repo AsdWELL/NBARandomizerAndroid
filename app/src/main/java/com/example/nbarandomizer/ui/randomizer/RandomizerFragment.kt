@@ -133,8 +133,10 @@ class RandomizerFragment : Fragment() {
 
         var players = shuffledPlayers.value!!
 
-        if (players.isEmpty())
+        if (players.isEmpty()) {
             players = sharedViewModel.selectedRoster.randomize()
+            history.clear()
+        }
 
         val randomizedPlayers = mutableListOf<Player>()
         val teamsCount = when (binding.twoTeamsSwitch.isChecked) {
@@ -163,12 +165,14 @@ class RandomizerFragment : Fragment() {
             return
         }
 
-        history.addPlayers(randomizedPlayers)
+        history.addPlayers(randomizedPlayers, teamsCount)
 
         val teamFragment = TeamFragment(randomizedPlayers, teamsCount)  { position ->
+            val oldPlayer = randomizedPlayers[position]
+
             val buffer = shuffledPlayers.value!!
 
-            val player = try {
+            val newPlayer = try {
                 when(selectedPositions.size) {
                     0 -> buffer.getNextPlayer()
                     else -> buffer.getNextPlayerByPosition(selectedPositions[position / teamsCount])
@@ -176,14 +180,14 @@ class RandomizerFragment : Fragment() {
             }
             catch (ex: Exception) {
                 toastMessage(ex.message!!)
-                return@TeamFragment randomizedPlayers[position]
+                return@TeamFragment oldPlayer
             }
 
-            history.addPlayerReplacement(player)
+            history.addPlayerReplacementToLastGame(oldPlayer, newPlayer)
 
             shuffledPlayers.value = buffer
 
-            player
+            newPlayer
         }
 
         requireActivity().supportFragmentManager
