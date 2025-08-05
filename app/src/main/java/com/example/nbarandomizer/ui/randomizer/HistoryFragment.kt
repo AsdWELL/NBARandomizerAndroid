@@ -6,15 +6,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.nbarandomizer.R
 import com.example.nbarandomizer.adapters.HistoryAdapter
 import com.example.nbarandomizer.databinding.FragmentHistoryBinding
 import com.example.nbarandomizer.extensions.createEnterTransformation
 import com.example.nbarandomizer.extensions.createReturnTransformation
+import com.example.nbarandomizer.extensions.gone
 import com.example.nbarandomizer.extensions.hide
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.viewModels.SharedViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HistoryFragment : Fragment() {
     private var _binding: FragmentHistoryBinding? = null
@@ -38,18 +43,25 @@ class HistoryFragment : Fragment() {
     }
 
     private fun initAndAttachHistoryAdapter() {
-        if (history.usedPlayers.isEmpty()) {
+        if (history.games.isEmpty()) {
             binding.statsCard.hide()
             binding.emptyHistoryMsg.show()
 
             return
         }
 
-        adapter = HistoryAdapter()
-        adapter.submitList(history.usedPlayers)
+        binding.progressBar.show()
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.adapter = adapter
+        lifecycleScope.launch(Dispatchers.IO) {
+            adapter = HistoryAdapter()
+            adapter.games = sharedViewModel.history.games
+
+            binding.recyclerView.layoutManager = LinearLayoutManager(context)
+
+            withContext(Dispatchers.Main) {
+                binding.recyclerView.adapter = adapter
+            }
+        }
     }
 
     override fun onCreateView(
@@ -75,6 +87,8 @@ class HistoryFragment : Fragment() {
 
         enterTransition = createEnterTransformation(historyCard, binding.historyContainer) {
             historyCard.hide()
+            binding.progressBar.gone()
+            binding.recyclerView.show()
         }
 
         returnTransition = createReturnTransformation(binding.historyContainer, historyCard) {
