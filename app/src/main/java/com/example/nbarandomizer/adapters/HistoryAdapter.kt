@@ -21,7 +21,6 @@ class HistoryViewHolder(private val binding: ItemGameBinding) : RecyclerView.Vie
 
     private fun setupRecyclerView() {
         with(binding.gamesRecyclerView) {
-            setHasFixedSize(true)
             itemAnimator = null
             setRecycledViewPool(HistoryAdapter.sharedPool)
             layoutManager = gridLayoutManager
@@ -30,7 +29,7 @@ class HistoryViewHolder(private val binding: ItemGameBinding) : RecyclerView.Vie
     }
 
     fun bind(game: Game, index: Int) {
-        singleGameAdapter.players = game.usedPlayers
+        singleGameAdapter.submitList(game.usedPlayers)
         gridLayoutManager.spanCount = game.teamsCount
 
         binding.gameLabel.text = "Игра ${index + 1}"
@@ -41,7 +40,9 @@ class HistoryAdapter : RecyclerView.Adapter<HistoryViewHolder>() {
     lateinit var games: List<Game>
 
     companion object {
-        val sharedPool = RecyclerView.RecycledViewPool()
+        val sharedPool = RecyclerView.RecycledViewPool().apply {
+            setMaxRecycledViews(0, 100)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {

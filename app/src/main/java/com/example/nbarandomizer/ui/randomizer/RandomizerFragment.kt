@@ -138,7 +138,7 @@ class RandomizerFragment : Fragment() {
             history.clear()
         }
 
-        val randomizedPlayers = mutableListOf<Player>()
+        var randomizedPlayers = mutableListOf<Player>()
         val teamsCount = when (binding.twoTeamsSwitch.isChecked) {
             true -> 2
             false -> 1
@@ -168,8 +168,6 @@ class RandomizerFragment : Fragment() {
         history.addPlayers(randomizedPlayers, teamsCount)
 
         val teamFragment = TeamFragment(randomizedPlayers, teamsCount)  { position ->
-            val oldPlayer = randomizedPlayers[position]
-
             val buffer = shuffledPlayers.value!!
 
             val newPlayer = try {
@@ -180,10 +178,14 @@ class RandomizerFragment : Fragment() {
             }
             catch (ex: Exception) {
                 toastMessage(ex.message!!)
-                return@TeamFragment oldPlayer
+                return@TeamFragment randomizedPlayers[position]
             }
 
-            history.addPlayerReplacementToLastGame(oldPlayer, newPlayer)
+            history.addPlayerReplacementToLastGame(position, newPlayer)
+
+            randomizedPlayers = randomizedPlayers.toMutableList().apply {
+                this[position] = newPlayer
+            }
 
             shuffledPlayers.value = buffer
 

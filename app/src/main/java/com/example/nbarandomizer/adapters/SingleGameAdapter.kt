@@ -2,9 +2,11 @@ package com.example.nbarandomizer.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.ObjectKey
+import com.example.nbarandomizer.callbacks.PlayerDiffCallback
 import com.example.nbarandomizer.databinding.ItemHistoryPlayerBinding
 import com.example.nbarandomizer.models.Player
 
@@ -22,9 +24,7 @@ class SingleGameViewHolder(private val binding: ItemHistoryPlayerBinding) : Recy
     }
 }
 
-class SingleGameAdapter : RecyclerView.Adapter<SingleGameViewHolder>() {
-    lateinit var players: List<Player>
-
+class SingleGameAdapter : ListAdapter<Player, SingleGameViewHolder>(PlayerDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SingleGameViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemHistoryPlayerBinding.inflate(inflater, parent, false)
@@ -32,11 +32,7 @@ class SingleGameAdapter : RecyclerView.Adapter<SingleGameViewHolder>() {
         return SingleGameViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return players.size
-    }
-
     override fun onBindViewHolder(holder: SingleGameViewHolder, position: Int) {
-        holder.bind(players[position])
+        holder.bind(currentList[position])
     }
 }
