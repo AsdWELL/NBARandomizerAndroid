@@ -26,16 +26,15 @@ class History {
 
     val gamesCount get() = _games.size
 
-    fun addPlayerReplacementToLastGame(oldPlayer: Player, newPlayer: Player) {
+    fun addPlayerReplacementToLastGame(oldPlayerIndex: Int, newPlayer: Player) {
         if (_games.isEmpty())
             return
 
         _usedPlayersCount++
 
         with(_games.last()) {
-            replacements.add(PlayerReplacement(oldPlayer, newPlayer))
+            replacements.add(PlayerReplacement(usedPlayers[oldPlayerIndex], newPlayer))
 
-            val oldPlayerIndex = usedPlayers.indexOf(oldPlayer)
             usedPlayers[oldPlayerIndex] = newPlayer
         }
     }
@@ -43,7 +42,7 @@ class History {
     fun addPlayers(players: MutableList<Player>, teamsCount: Int) {
         _usedPlayersCount += players.size
 
-        _games.add(Game(players, teamsCount))
+        _games.add(Game(players.toMutableList(), teamsCount))
     }
 
     fun updatePlayers(newPlayers: List<Player>) {
