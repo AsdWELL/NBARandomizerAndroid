@@ -19,6 +19,7 @@ import com.example.nbarandomizer.extensions.createReturnTransformation
 import com.example.nbarandomizer.extensions.gone
 import com.example.nbarandomizer.extensions.show
 import com.example.nbarandomizer.listeners.IPageReadyListener
+import com.example.nbarandomizer.models.IPlayerBase
 import com.example.nbarandomizer.models.PlayerDetails
 import com.example.nbarandomizer.ui.providers.CardOutlineProvider
 import com.example.nbarandomizer.viewModels.SharedViewModel
@@ -26,7 +27,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import java.io.File
 
 class PlayerDetailsFragment(
-    private val playerDetails: PlayerDetails,
+    private var playerBase: IPlayerBase,
     private val playerCard: View
 ) : Fragment() {
     private var _binding: FragmentPlayerDetailsBinding? = null
@@ -36,6 +37,16 @@ class PlayerDetailsFragment(
     private var loadedPages = 0
 
     private val totalPages = 2
+
+    var playerDetails: PlayerDetails?
+        get() = playerBase as? PlayerDetails
+        set(value) {
+            if (value != null) {
+                playerBase = value
+
+                setDetails()
+            }
+        }
 
     private lateinit var sharedViewModel: SharedViewModel
 
@@ -54,27 +65,30 @@ class PlayerDetailsFragment(
     private fun setMainInfo() {
         with(binding) {
             Glide.with(root)
-                .load(playerDetails.photoUrl)
-                .signature(ObjectKey("${playerDetails.team}_${playerDetails.photoUrl}"))
+                .load(playerBase.photoUrl)
+                .signature(ObjectKey("${playerBase.team}_${playerBase.photoUrl}"))
                 .circleCrop()
                 .into(photo)
 
-            name.text = playerDetails.name
-            nickname.setText(playerDetails.nickname)
-            team.text = "Team: ${playerDetails.team}"
+            name.text = playerBase.name
 
-            overallTextView.text = playerDetails.overall.value.toString()
+            if (playerDetails != null)
+                nickname.setText(playerDetails!!.nickname)
+            else
+                nickname.gone()
+
+            team.text = "Team: ${playerBase.team}"
+
+            overallTextView.text = playerBase.overall.value.toString()
             setupCard(overallCardView)
-            setCardColor(overallCardView, playerDetails.overall.color)
+            setCardColor(overallCardView, playerBase.overall.color)
         }
     }
 
     private fun setDetails() {
-        setMainInfo()
-
         with(binding) {
-            height.text = "Height: ${playerDetails.height}cm"
-            position.text = "Position: ${playerDetails.position}"
+            height.text = "Height: ${playerDetails!!.height}cm"
+            position.text = "Position: ${playerDetails!!.position}"
 
             initializeViewPager()
         }
@@ -85,7 +99,7 @@ class PlayerDetailsFragment(
             offscreenPageLimit = 2
             adapter = PlayerDetailsViewPagerAdapter(
                 requireActivity(),
-                playerDetails,
+                playerDetails!!,
                 object : IPageReadyListener {
                     override fun onPageLoad() {
                         loadedPages++
@@ -117,7 +131,10 @@ class PlayerDetailsFragment(
 
         sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
 
-        setDetails()
+        setMainInfo()
+
+        if (playerDetails != null)
+            setDetails()
 
         binding.backBtn.setOnClickListener { requireActivity().supportFragmentManager.popBackStack() }
 
@@ -151,10 +168,10 @@ class PlayerDetailsFragment(
     override fun onDestroy() {
         val nickname = binding.nickname.text.toString().trim().ifEmpty { null }
 
-        if (playerDetails.nickname != nickname) {
-            sharedViewModel.setNickname(playerDetails.name, nickname)
+        if (playerDetails?.nickname != nickname) {
+            sharedViewModel.setNickname(playerDetails!!.name, nickname)
 
-            onNicknameUpdate?.invoke(playerDetails.name, nickname)
+            onNicknameUpdate?.invoke(playerDetails!!.name, nickname)
 
             sharedViewModel.saveNicknames(File(requireActivity().applicationContext.filesDir, sharedViewModel.nicknamesFile))
         }
