@@ -30,6 +30,10 @@ class PlayerDetailsFragment(
     private var playerBase: IPlayerBase,
     private val playerCard: View
 ) : Fragment() {
+    companion object {
+        const val TAG = "details"
+    }
+
     private var _binding: FragmentPlayerDetailsBinding? = null
 
     private val binding get() = _binding!!
@@ -86,6 +90,9 @@ class PlayerDetailsFragment(
     }
 
     private fun setDetails() {
+        if (_binding == null)
+            return
+
         with(binding) {
             height.text = "Height: ${playerDetails!!.height}cm"
             position.text = "Position: ${playerDetails!!.position}"
