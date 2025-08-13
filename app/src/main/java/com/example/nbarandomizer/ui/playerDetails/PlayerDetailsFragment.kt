@@ -55,7 +55,7 @@ class PlayerDetailsFragment(
         with(binding) {
             Glide.with(root)
                 .load(playerDetails.photoUrl)
-                .signature(ObjectKey("${playerDetails.id}_${playerDetails.team}"))
+                .signature(ObjectKey("${playerDetails.team}_${playerDetails.photoUrl}"))
                 .circleCrop()
                 .into(photo)
 
