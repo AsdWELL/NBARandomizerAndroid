@@ -51,7 +51,7 @@ class PlayerDetailsFragment(
         card.outlineSpotShadowColor = color
     }
 
-    private fun setDetails() {
+    private fun setMainInfo() {
         with(binding) {
             Glide.with(root)
                 .load(playerDetails.photoUrl)
@@ -62,12 +62,19 @@ class PlayerDetailsFragment(
             name.text = playerDetails.name
             nickname.setText(playerDetails.nickname)
             team.text = "Team: ${playerDetails.team}"
-            height.text = "Height: ${playerDetails.height}cm"
-            position.text = "Position: ${playerDetails.position}"
-            overallTextView.text = playerDetails.overall.value.toString()
 
+            overallTextView.text = playerDetails.overall.value.toString()
             setupCard(overallCardView)
             setCardColor(overallCardView, playerDetails.overall.color)
+        }
+    }
+
+    private fun setDetails() {
+        setMainInfo()
+
+        with(binding) {
+            height.text = "Height: ${playerDetails.height}cm"
+            position.text = "Position: ${playerDetails.position}"
 
             initializeViewPager()
         }
